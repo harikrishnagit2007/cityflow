@@ -1,6 +1,6 @@
 {
-  "name": "Smart Roads",
-  "description": "Real-time traffic intelligence, route optimization, and smart transportation platform for commuters, delivery drivers, cab drivers, and emergency services.",
+  "name": "CityFlow AI",
+  "description": "AI-Powered Urban Traffic, Logistics & Smart Waste Management Platform with real-time route optimization, fill-level telemetry, and resource coordination.",
   "requestFramePermissions": ["geolocation", "notifications"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

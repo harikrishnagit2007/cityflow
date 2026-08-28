@@ -2,289 +2,176 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Commuters - Smart Roads</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Waste Management - CityFlow AI</title>
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="stylesheet" href="/assets/css/pwa.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
-        <!-- Back Button for PWA -->
-        <div class="app-header">
+        <!-- Back Button Header -->
+        <header class="app-header">
             <div class="header-content">
-                <a href="/" class="standalone-back">
+                <a href="/" class="standalone-back" title="Back to Home">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <div class="logo">
-                    <i class="fas fa-users"></i>
-                    <h1>Daily Commuters</h1>
+                    <i class="fas fa-trash-alt" style="color: #28A745;"></i>
+                    <h1>Smart Waste Console</h1>
                 </div>
                 <div class="header-actions">
-                    <button class="icon-btn" id="createGroupBtn">
-                        <i class="fas fa-plus"></i>
+                    <button class="btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="if(window.app) window.app.simulateBinFillIncrease()">
+                        <i class="fas fa-satellite-dish"></i> Fill Telemetry
                     </button>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <main class="main-content">
-            <!-- Traffic Prediction -->
-            <section class="traffic-prediction">
-                <h3 class="section-title">Traffic Prediction</h3>
-                <div class="prediction-card">
-                    <div class="prediction-header">
-                        <i class="fas fa-chart-line"></i>
-                        <div>
-                            <h4>Route to Downtown</h4>
-                            <p>Today, 8:00 AM - 9:00 AM</p>
+        <main class="main-content" style="padding: 1.25rem 1rem;">
+            <!-- Live Waste Metrics -->
+            <section style="margin-bottom: 1.5rem;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap urgent"><i class="fas fa-trash-can"></i></div>
+                            <span class="kpi-badge" style="background: rgba(220, 53, 69, 0.1); color: #DC3545;">Critical</span>
                         </div>
+                        <div class="kpi-value" style="color: #DC3545;">5 Bins</div>
+                        <div class="kpi-label">Urgent (>85% Fill)</div>
                     </div>
-                    <div class="prediction-content">
-                        <div class="prediction-item">
-                            <span class="prediction-label">Best Departure Time:</span>
-                            <span class="prediction-value">7:45 AM</span>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap waste"><i class="fas fa-truck"></i></div>
+                            <span class="kpi-badge" style="background: rgba(40, 167, 69, 0.1); color: #28A745;">Available</span>
                         </div>
-                        <div class="prediction-item">
-                            <span class="prediction-label">Expected Delay:</span>
-                            <span class="prediction-value warning">15-20 minutes</span>
-                        </div>
-                        <div class="prediction-item">
-                            <span class="prediction-label">Alternative Route:</span>
-                            <span class="prediction-value">Via Highway 101</span>
-                        </div>
+                        <div class="kpi-value">18 / 24</div>
+                        <div class="kpi-label">Active Trucks & Crews</div>
                     </div>
-                    <div class="prediction-advice">
-                        <i class="fas fa-lightbulb"></i>
-                        <p>Leaving before 7:45 AM reduces delay by 70%</p>
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap delivery"><i class="fas fa-route"></i></div>
+                            <span class="kpi-badge" style="background: rgba(0, 119, 252, 0.1); color: #0077FC;">-31.6%</span>
+                        </div>
+                        <div class="kpi-value">38.4 km</div>
+                        <div class="kpi-label">Route Distance Saved</div>
                     </div>
                 </div>
             </section>
 
-            <!-- Active Groups -->
-            <section class="active-groups">
-                <h3 class="section-title">Active Groups</h3>
+            <!-- Real-Time Monitored Bins List -->
+            <section style="margin-bottom: 2rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-signal"></i> IoT Ultrasonic Telemetry</span>
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-dark);">Active Smart Bin Grid</h3>
+                    <p class="section-subtitle-text">Real-time fill percentage and automated AI truck dispatch triggers.</p>
+                </div>
+
                 <div class="groups-list">
-                    <div class="group-card">
+                    <!-- Bin 1: Critical -->
+                    <div class="group-card" style="border-left: 4px solid #DC3545;">
                         <div class="group-header">
                             <div class="group-info">
-                                <h4>Office Commute</h4>
+                                <h4>🗑️ Bin B003 — High Street Commercial Plaza</h4>
                                 <div class="group-meta">
-                                    <span class="group-status active">Live</span>
-                                    <span class="group-members">
-                                        <i class="fas fa-user-friends"></i> 5 members
-                                    </span>
+                                    <span class="group-status" style="background: #DC3545; color: white;">97% Critical</span>
+                                    <span class="group-members"><i class="fas fa-box"></i> General Waste</span>
                                 </div>
                             </div>
-                            <button class="icon-btn">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
+                        </div>
+                        <div class="fill-bar-track" style="margin: 8px 0;">
+                            <div class="fill-bar-progress urgent" style="width: 97%;"></div>
                         </div>
                         <div class="group-details">
                             <div class="detail-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>Downtown Office</span>
+                                <i class="fas fa-clock"></i>
+                                <span>Last Emptied: 14 hrs ago</span>
                             </div>
                             <div class="detail-item">
-                                <i class="fas fa-clock"></i>
-                                <span>ETA: 8:45 AM (15 min delay)</span>
+                                <i class="fas fa-truck-moving" style="color: #0077FC;"></i>
+                                <span>Truck #04 Auto-Dispatched (ETA 4 min)</span>
                             </div>
                         </div>
                         <div class="group-actions">
-                            <button class="btn-primary">Join Route</button>
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-primary" onclick="alert('Priority signal broadcasted to Truck #04.')">Track Collection Route</button>
+                            <button class="btn-text" onclick="alert('Sensor: Ultrasonic HC-SR04 telemetry active (battery 94%).')">Sensor Diagnostics</button>
                         </div>
                     </div>
 
-                    <div class="group-card">
+                    <!-- Bin 2: Urgent -->
+                    <div class="group-card" style="border-left: 4px solid #DC3545;">
                         <div class="group-header">
                             <div class="group-info">
-                                <h4>College Carpool</h4>
+                                <h4>🗑️ Bin B012 — Market Square Food Hub</h4>
                                 <div class="group-meta">
-                                    <span class="group-status">Starting Soon</span>
-                                    <span class="group-members">
-                                        <i class="fas fa-user-friends"></i> 3 members
-                                    </span>
+                                    <span class="group-status" style="background: #DC3545; color: white;">88% Urgent</span>
+                                    <span class="group-members"><i class="fas fa-recycle"></i> Recyclables</span>
                                 </div>
                             </div>
-                            <button class="icon-btn">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
+                        </div>
+                        <div class="fill-bar-track" style="margin: 8px 0;">
+                            <div class="fill-bar-progress urgent" style="width: 88%;"></div>
                         </div>
                         <div class="group-details">
                             <div class="detail-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>University Campus</span>
+                                <i class="fas fa-clock"></i>
+                                <span>Last Emptied: 18 hrs ago</span>
                             </div>
                             <div class="detail-item">
-                                <i class="fas fa-clock"></i>
-                                <span>Starts: 9:30 AM</span>
+                                <i class="fas fa-truck-moving" style="color: #0077FC;"></i>
+                                <span>Assigned: Truck #12 (Queued in Loop)</span>
                             </div>
                         </div>
                         <div class="group-actions">
-                            <button class="btn-primary">Join Group</button>
-                            <button class="btn-text">Set Reminder</button>
+                            <button class="btn-primary" onclick="alert('Route prioritized for Truck #12.')">Prioritize Route</button>
                         </div>
                     </div>
-                </div>
-            </section>
 
-            <!-- Live Updates -->
-            <section class="group-updates">
-                <h3 class="section-title">Group Updates</h3>
-                <div class="updates-feed">
-                    <div class="update-post">
-                        <div class="update-header">
-                            <div class="update-author">
-                                <i class="fas fa-user-circle"></i>
-                                <div>
-                                    <strong>Sarah (Leader)</strong>
-                                    <span class="update-time">2 min ago</span>
+                    <!-- Bin 3: Normal -->
+                    <div class="group-card" style="border-left: 4px solid #28A745;">
+                        <div class="group-header">
+                            <div class="group-info">
+                                <h4>🗑️ Bin B007 — Greenwood Public Park</h4>
+                                <div class="group-meta">
+                                    <span class="group-status" style="background: #28A745; color: white;">22% Normal</span>
+                                    <span class="group-members"><i class="fas fa-leaf"></i> Organic Waste</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="update-content">
-                            <p>Traffic is heavier than expected on Main Street. Let's take the alternate route via Maple Avenue.</p>
+                        <div class="fill-bar-track" style="margin: 8px 0;">
+                            <div class="fill-bar-progress normal" style="width: 22%;"></div>
                         </div>
-                        <div class="update-actions">
-                            <button class="btn-text">
-                                <i class="fas fa-thumbs-up"></i> Acknowledge
-                            </button>
-                            <button class="btn-text">
-                                <i class="fas fa-comment"></i> Comment
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="update-post">
-                        <div class="update-header">
-                            <div class="update-author">
-                                <i class="fas fa-user-circle"></i>
-                                <div>
-                                    <strong>System Alert</strong>
-                                    <span class="update-time">10 min ago</span>
-                                </div>
+                        <div class="group-details">
+                            <div class="detail-item">
+                                <i class="fas fa-check-circle" style="color: #28A745;"></i>
+                                <span>Status: Skipped from Daily Route (Saved Trip & Fuel)</span>
                             </div>
                         </div>
-                        <div class="update-content">
-                            <p>⚠️ Accident reported ahead. Expected delay: 20 minutes. Consider taking lunch break now.</p>
-                        </div>
                     </div>
-                </div>
-            </section>
-
-            <!-- Quick Actions -->
-            <section class="quick-actions">
-                <h3 class="section-title">Quick Actions</h3>
-                <div class="actions-grid">
-                    <button class="action-btn" id="startNewTrip">
-                        <i class="fas fa-plus-circle"></i>
-                        <span>Start New Trip</span>
-                    </button>
-                    <button class="action-btn" id="inviteFriends">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Invite Friends</span>
-                    </button>
-                    <button class="action-btn" id="viewMap">
-                        <i class="fas fa-map"></i>
-                        <span>View Live Map</span>
-                    </button>
-                    <button class="action-btn" id="scheduleTrip">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Schedule Trip</span>
-                    </button>
                 </div>
             </section>
         </main>
 
-        <!-- Group Creation Modal -->
-        <div class="modal-overlay" id="groupModal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Create New Group</h3>
-                    <button class="modal-close">&times;</button>
-                </div>
-                <form id="groupForm">
-                    <div class="input-group">
-                        <label class="input-label">Group Name</label>
-                        <input type="text" class="form-input" placeholder="e.g., Office Commute" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Destination</label>
-                        <input type="text" class="form-input" placeholder="Enter destination" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Departure Time</label>
-                        <input type="time" class="form-input" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Travel Mode</label>
-                        <select class="form-input">
-                            <option value="car">Car</option>
-                            <option value="bike">Bike</option>
-                            <option value="public">Public Transport</option>
-                            <option value="walk">Walk</option>
-                        </select>
-                    </div>
-                    
-                    <div class="input-group">
-                        <label class="input-label">Add Members (Email or Phone)</label>
-                        <div class="members-input">
-                            <input type="text" class="form-input" placeholder="Enter email or phone">
-                            <button type="button" class="btn-text" id="addMemberBtn">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                        <div class="members-list" id="membersList"></div>
-                    </div>
-                    
-                    <button type="submit" class="btn-primary" style="width: 100%;">
-                        <i class="fas fa-users"></i> Create Group
-                    </button>
-                </form>
-            </div>
-        </div>
-
+        <!-- Bottom Navigation -->
         <nav class="app-nav">
-            <a href="/" class="nav-item">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
+            <a href="/index.html" class="nav-item">
+                <i class="fas fa-city"></i>
+                <span>CityFlow</span>
             </a>
-            <a href="#" class="nav-item active">
-                <i class="fas fa-users"></i>
-                <span>Groups</span>
+            <a href="/commuters.html" class="nav-item active">
+                <i class="fas fa-trash-alt"></i>
+                <span>Smart Waste</span>
             </a>
-            <a href="#" class="nav-item" id="commuteMapNav">
-                <i class="fas fa-map"></i>
-                <span>Map</span>
+            <a href="/delivery.html" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Logistics</span>
             </a>
-            <a href="#" class="nav-item" id="commuteSettingsNav">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+            <a href="/cab-drivers.html" class="nav-item">
+                <i class="fas fa-traffic-light"></i>
+                <span>Traffic</span>
             </a>
         </nav>
     </div>
-
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/modules/commuters.js"></script>
-    
-    <script>
-        // Initialize commuters module
-        document.addEventListener('DOMContentLoaded', () => {
-            const commutersModule = new CommutersModule();
-            
-            // Handle back button in PWA
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                document.querySelector('.standalone-back').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.history.back();
-                });
-            }
-        });
-    </script>
 </body>
 </html>

@@ -1,759 +1,764 @@
-// Maps Integration for Smart Roads
-class SmartRoadsMap {
+// CityFlow AI - Intelligent Urban Operations Map Integration
+class CityFlowMap {
     constructor(containerId, options = {}) {
         this.containerId = containerId;
         this.options = {
-            center: [20.5937, 78.9629], // India coordinates
-            zoom: 12,
-            minZoom: 10,
+            center: [13.0827, 80.2707], // Default city center (Chennai/Metro)
+            zoom: 13,
+            minZoom: 11,
             maxZoom: 18,
-            trafficOverlay: true,
-            markers: true,
-            routes: true,
+            activeFilter: 'all',
             ...options
         };
         
         this.map = null;
-        this.trafficLayer = null;
+        this.layers = {
+            traffic: null,
+            waste: null,
+            delivery: null,
+            loading: null,
+            routes: null
+        };
         this.markers = [];
-        this.routes = [];
-        this.trafficData = {};
+        this.userLocation = null;
+        this.data = {
+            bins: [],
+            trucks: [],
+            deliveries: [],
+            loadingZones: [],
+            roads: []
+        };
         
         this.init();
     }
 
     async init() {
         await this.loadMap();
-        await this.loadTrafficData();
-        this.renderTraffic();
-        
-        if (this.options.markers) {
-            this.addSampleMarkers();
-        }
-        
-        if (this.options.routes) {
-            this.addSampleRoutes();
-        }
-        
-        this.addControls();
-        this.startTrafficUpdates();
+        await this.detectUserLocation();
+        await this.loadData();
+        this.renderAllLayers();
+        this.setupFilterEvents();
+        this.setupMapInteractionEvents();
+        this.startRealtimeTicker();
     }
 
     async loadMap() {
         const container = document.getElementById(this.containerId);
         if (!container) {
-            console.error(`Container #${this.containerId} not found`);
+            console.error(`Map container #${this.containerId} not found`);
             return;
         }
 
         // Initialize Leaflet map
-        this.map = L.map(this.containerId).setView(
-            this.options.center,
-            this.options.zoom
-        );
+        this.map = L.map(this.containerId, {
+            zoomControl: true,
+            scrollWheelZoom: true
+        }).setView(this.options.center, this.options.zoom);
 
-        // Add OpenStreetMap tiles
+        // Add standard clean OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
+            attribution: '© OpenStreetMap contributors | CityFlow AI Decision Engine',
             maxZoom: this.options.maxZoom,
             minZoom: this.options.minZoom
         }).addTo(this.map);
 
-        // Add terrain layer
-        L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-            maxZoom: 17,
-            attribution: 'OpenTopoMap'
-        }).addTo(this.map);
+        // Layer groups
+        this.layers.traffic = L.layerGroup().addTo(this.map);
+        this.layers.waste = L.layerGroup().addTo(this.map);
+        this.layers.delivery = L.layerGroup().addTo(this.map);
+        this.layers.loading = L.layerGroup().addTo(this.map);
+        this.layers.routes = L.layerGroup().addTo(this.map);
 
-        // Fit bounds to container
         setTimeout(() => {
-            this.map.invalidateSize();
-        }, 100);
+            if (this.map) this.map.invalidateSize();
+        }, 200);
     }
 
-    async loadTrafficData() {
-        // Load traffic data from localStorage or generate dummy data
-        const savedData = localStorage.getItem('smartroads_traffic');
-        if (savedData) {
-            this.trafficData = JSON.parse(savedData);
+    async detectUserLocation() {
+        if (navigator.geolocation) {
+            return new Promise((resolve) => {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        this.userLocation = [latitude, longitude];
+                        this.options.center = [latitude, longitude];
+                        if (this.map) {
+                            this.map.setView([latitude, longitude], 13);
+                        }
+                        this.addUserMarker(latitude, longitude);
+                        this.generateGeoRelativeData(latitude, longitude);
+                        resolve();
+                    },
+                    (err) => {
+                        console.log('Using default city coordinates:', err.message);
+                        this.generateGeoRelativeData(this.options.center[0], this.options.center[1]);
+                        resolve();
+                    },
+                    { timeout: 5000, enableHighAccuracy: true }
+                );
+            });
         } else {
-            this.trafficData = this.generateTrafficData();
-            localStorage.setItem('smartroads_traffic', JSON.stringify(this.trafficData));
+            this.generateGeoRelativeData(this.options.center[0], this.options.center[1]);
         }
     }
 
-    generateTrafficData() {
-        // Generate realistic traffic data based on time and day
-        const now = new Date();
-        const hour = now.getHours();
-        const day = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
-        const isWeekday = day >= 1 && day <= 5;
-        const isRushHour = (hour >= 7 && hour <= 10) || (hour >= 16 && hour <= 19);
-        
-        const baseLat = 20.5937;
-        const baseLng = 78.9629;
-        
-        const roads = [
-            {
-                name: "Main Street",
-                coordinates: [
-                    [baseLat - 0.05, baseLng - 0.1],
-                    [baseLat - 0.03, baseLng - 0.05],
-                    [baseLat, baseLng],
-                    [baseLat + 0.03, baseLng + 0.05],
-                    [baseLat + 0.05, baseLng + 0.1]
-                ],
-                baseCongestion: isRushHour ? 0.7 : 0.3
-            },
-            {
-                name: "Highway 101",
-                coordinates: [
-                    [baseLat + 0.1, baseLng - 0.15],
-                    [baseLat + 0.05, baseLng - 0.05],
-                    [baseLat, baseLng],
-                    [baseLat - 0.05, baseLng + 0.05],
-                    [baseLat - 0.1, baseLng + 0.15]
-                ],
-                baseCongestion: isWeekday ? 0.6 : 0.4
-            },
-            {
-                name: "Park Avenue",
-                coordinates: [
-                    [baseLat - 0.1, baseLng],
-                    [baseLat - 0.05, baseLng],
-                    [baseLat, baseLng],
-                    [baseLat + 0.05, baseLng],
-                    [baseLat + 0.1, baseLng]
-                ],
-                baseCongestion: 0.2
-            }
+    addUserMarker(lat, lng) {
+        const userIcon = L.divIcon({
+            html: `<div style="
+                background: #0077FC;
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 3px solid #FFFFFF;
+                box-shadow: 0 0 14px rgba(0, 119, 252, 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #FFFFFF;
+                font-size: 13px;
+            "><i class="fas fa-crosshairs"></i></div>`,
+            className: 'user-geo-icon',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        L.marker([lat, lng], { icon: userIcon })
+            .addTo(this.map)
+            .bindPopup(`
+                <div style="font-family: inherit; font-size: 13px; padding: 4px;">
+                    <strong style="color: #0077FC;"><i class="fas fa-location-arrow"></i> Your Operations Node</strong><br>
+                    <span style="color: #666;">Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}</span><br>
+                    <small style="color: #28A745;">Connected to CityFlow MCP Gateway</small>
+                </div>
+            `);
+    }
+
+    generateGeoRelativeData(baseLat, baseLng) {
+        this.data.bins = [
+            { id: 'BIN-B003', location: 'Commercial High Street', fill: 97, status: 'urgent', type: 'General Waste', lat: baseLat + 0.008, lng: baseLng + 0.006, assignedTruck: 'TRK-04' },
+            { id: 'BIN-B012', location: 'Market Central Plaza', fill: 88, status: 'urgent', type: 'Recyclables', lat: baseLat - 0.009, lng: baseLng + 0.012, assignedTruck: 'TRK-12' },
+            { id: 'BIN-B019', location: 'Tech Park Metro Gate', fill: 85, status: 'collect_soon', type: 'Organic Waste', lat: baseLat + 0.014, lng: baseLng - 0.008, assignedTruck: null },
+            { id: 'BIN-B024', location: 'North Transit Terminal', fill: 93, status: 'urgent', type: 'General Waste', lat: baseLat - 0.012, lng: baseLng - 0.014, assignedTruck: 'TRK-07' },
+            { id: 'BIN-B007', location: 'Greenwood Public Park', fill: 22, status: 'normal', type: 'General Waste', lat: baseLat + 0.018, lng: baseLng + 0.015, assignedTruck: null },
+            { id: 'BIN-B015', location: 'South Harbor Road', fill: 45, status: 'normal', type: 'Recyclables', lat: baseLat - 0.016, lng: baseLng + 0.004, assignedTruck: null }
         ];
 
-        // Add random variations
-        return roads.map(road => ({
-            ...road,
-            congestion: Math.min(1, Math.max(0, road.baseCongestion + (Math.random() * 0.3 - 0.15))),
-            speed: Math.floor(60 * (1 - road.congestion)),
-            incidents: Math.random() > 0.8 ? ['accident', 'construction', 'event'][Math.floor(Math.random() * 3)] : null,
-            updatedAt: now.toISOString()
-        }));
+        this.data.trucks = [
+            { id: 'TRK-04', driver: 'Rajesh K.', status: 'En Route to B003', capacity: 75, lat: baseLat + 0.004, lng: baseLng + 0.002, targetBin: 'BIN-B003' },
+            { id: 'TRK-07', driver: 'Vikram S.', status: 'En Route to B024', capacity: 60, lat: baseLat - 0.006, lng: baseLng - 0.008, targetBin: 'BIN-B024' },
+            { id: 'TRK-12', driver: 'Anand M.', status: 'Collecting B012', capacity: 85, lat: baseLat - 0.008, lng: baseLng + 0.010, targetBin: 'BIN-B012' },
+            { id: 'TRK-15', driver: 'Suresh R.', status: 'Available / Standby', capacity: 15, lat: baseLat + 0.015, lng: baseLng - 0.002, targetBin: null }
+        ];
+
+        this.data.deliveries = [
+            { id: 'DEL-V18', driver: 'Karthik S.', cluster: 8, lat: baseLat + 0.006, lng: baseLng - 0.005, status: 'Active Delivery Loop', route: 'Downtown Hub #2' },
+            { id: 'DEL-V24', driver: 'Pooja N.', cluster: 12, lat: baseLat - 0.004, lng: baseLng + 0.009, status: 'Unloading Zone B', route: 'Market Sector #4' },
+            { id: 'DEL-V31', driver: 'Amit V.', cluster: 6, lat: baseLat + 0.012, lng: baseLng + 0.010, status: 'En Route Hub #7', route: 'Tech Corridor #1' }
+        ];
+
+        this.data.loadingZones = [
+            { id: 'LZ-01', name: 'Downtown Express Bay', total: 4, occupied: 2, lat: baseLat + 0.005, lng: baseLng + 0.004 },
+            { id: 'LZ-02', name: 'Market Street Virtual Zone', total: 3, occupied: 3, lat: baseLat - 0.007, lng: baseLng + 0.011 },
+            { id: 'LZ-03', name: 'East Logistics Bay', total: 6, occupied: 3, lat: baseLat + 0.011, lng: baseLng - 0.009 }
+        ];
+
+        this.data.roads = [
+            {
+                name: "Downtown Arterial Corridor",
+                congestion: 0.85,
+                speed: "18 km/h",
+                coords: [
+                    [baseLat - 0.015, baseLng - 0.02],
+                    [baseLat - 0.008, baseLng - 0.01],
+                    [baseLat, baseLng],
+                    [baseLat + 0.008, baseLng + 0.01],
+                    [baseLat + 0.018, baseLng + 0.022]
+                ]
+            },
+            {
+                name: "Market Street Commercial Way",
+                congestion: 0.65,
+                speed: "26 km/h",
+                coords: [
+                    [baseLat + 0.02, baseLng - 0.015],
+                    [baseLat + 0.01, baseLng - 0.005],
+                    [baseLat - 0.002, baseLng + 0.008],
+                    [baseLat - 0.012, baseLng + 0.018]
+                ]
+            },
+            {
+                name: "Ring Expressway North",
+                congestion: 0.25,
+                speed: "58 km/h",
+                coords: [
+                    [baseLat + 0.022, baseLng - 0.025],
+                    [baseLat + 0.024, baseLng],
+                    [baseLat + 0.022, baseLng + 0.025]
+                ]
+            }
+        ];
+    }
+
+    async loadData() {
+        try {
+            const res = await fetch('/api/cityflow/status');
+            if (res.ok) {
+                const json = await res.json();
+                if (json.data && json.data.waste) {
+                    console.log('CityFlow Live Status synced');
+                }
+            }
+        } catch (e) {
+            console.log('Fallback to local geo dataset:', e.message);
+        }
+    }
+
+    renderAllLayers() {
+        this.renderTraffic();
+        this.renderWasteBins();
+        this.renderWasteTrucks();
+        this.renderDeliveryVehicles();
+        this.renderLoadingZones();
+        this.renderOptimizedRoutes();
     }
 
     renderTraffic() {
-        if (!this.map || !this.options.trafficOverlay) return;
+        if (!this.layers.traffic) return;
+        this.layers.traffic.clearLayers();
 
-        // Clear existing traffic layer
-        if (this.trafficLayer) {
-            this.trafficLayer.clearLayers();
-        }
-
-        this.trafficLayer = L.layerGroup().addTo(this.map);
-
-        this.trafficData.forEach(road => {
-            const color = this.getTrafficColor(road.congestion);
-            const weight = 5 + road.congestion * 5;
-            const opacity = 0.7;
+        this.data.roads.forEach(road => {
+            const color = road.congestion > 0.7 ? '#DC3545' : (road.congestion > 0.4 ? '#FFC107' : '#28A745');
+            const weight = 6;
             
-            // Draw road segment
-            const polyline = L.polyline(road.coordinates, {
+            const polyline = L.polyline(road.coords, {
                 color: color,
                 weight: weight,
-                opacity: opacity,
+                opacity: 0.8,
                 lineCap: 'round',
                 lineJoin: 'round'
-            }).addTo(this.trafficLayer);
-            
-            // Add tooltip with traffic info
-            polyline.bindTooltip(`
-                <strong>${road.name}</strong><br>
-                Congestion: ${Math.round(road.congestion * 100)}%<br>
-                Speed: ${road.speed} km/h<br>
-                ${road.incidents ? `<i>Incident: ${road.incidents}</i><br>` : ''}
-                <small>Updated: ${new Date(road.updatedAt).toLocaleTimeString()}</small>
-            `);
-            
-            // Add click event
-            polyline.on('click', () => {
-                this.showRoadDetails(road);
-            });
-            
-            // Add pulse animation for incidents
-            if (road.incidents) {
-                this.addIncidentMarker(road);
-            }
-        });
+            }).addTo(this.layers.traffic);
 
-        // Add legend
-        this.addTrafficLegend();
-    }
-
-    getTrafficColor(congestion) {
-        if (congestion < 0.3) return '#28A745'; // Green
-        if (congestion < 0.6) return '#FFC107'; // Yellow
-        return '#DC3545'; // Red
-    }
-
-    addIncidentMarker(road) {
-        // Add incident marker at midpoint of road
-        const midIndex = Math.floor(road.coordinates.length / 2);
-        const [lat, lng] = road.coordinates[midIndex];
-        
-        const icon = L.divIcon({
-            html: `<div class="incident-marker" style="
-                background: #DC3545;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                border: 3px solid white;
-                box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
-                animation: pulse 1.5s infinite;
-            "></div>`,
-            className: 'incident-icon',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
-        });
-        
-        const marker = L.marker([lat, lng], { icon })
-            .addTo(this.trafficLayer)
-            .bindTooltip(`<strong>${road.incidents.toUpperCase()}</strong><br>${road.name}`);
-            
-        this.markers.push(marker);
-    }
-
-    addTrafficLegend() {
-        const legend = L.control({ position: 'bottomright' });
-        
-        legend.onAdd = () => {
-            const div = L.DomUtil.create('div', 'traffic-legend');
-            div.innerHTML = `
-                <div style="
-                    background: white;
-                    padding: 10px;
-                    border-radius: 5px;
-                    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-                    font-size: 12px;
-                ">
-                    <h4 style="margin: 0 0 10px 0;">Traffic Legend</h4>
-                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                        <div style="width: 20px; height: 5px; background: #28A745; margin-right: 10px;"></div>
-                        <span>Light (&lt;30%)</span>
-                    </div>
-                    <div style="display: flex; align-items: center; margin-bottom: 5px;">
-                        <div style="width: 20px; height: 5px; background: #FFC107; margin-right: 10px;"></div>
-                        <span>Moderate (30-60%)</span>
-                    </div>
-                    <div style="display: flex; align-items; center; margin-bottom: 5px;">
-                        <div style="width: 20px; height: 5px; background: #DC3545; margin-right: 10px;"></div>
-                        <span>Heavy (&gt;60%)</span>
-                    </div>
-                    <hr style="margin: 10px 0;">
-                    <div style="display: flex; align-items: center;">
-                        <div style="width: 20px; height: 20px; background: #DC3545; border-radius: 50%; margin-right: 10px; animation: pulse 1.5s infinite;"></div>
-                        <span>Incident/Alert</span>
-                    </div>
+            polyline.bindPopup(`
+                <div style="font-family: inherit; font-size: 13px; padding: 4px;">
+                    <strong><i class="fas fa-traffic-light" style="color: ${color};"></i> ${road.name}</strong><br>
+                    <span>Congestion Level: <strong>${Math.round(road.congestion * 100)}%</strong></span><br>
+                    <span>Avg Transit Speed: <strong>${road.speed}</strong></span><br>
+                    <small style="color: #666;">CityFlow AI Signal Coordination: Active</small>
                 </div>
-            `;
-            
-            // Add pulse animation
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes pulse {
-                    0% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.2); opacity: 0.7; }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-            `;
-            div.appendChild(style);
-            
-            return div;
-        };
-        
-        legend.addTo(this.map);
-    }
-
-    addSampleMarkers() {
-        // Add user location marker
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    const { latitude, longitude } = position.coords;
-                    this.addMarker([latitude, longitude], 'Your Location', 'user');
-                },
-                () => {
-                    // Default to map center if geolocation fails
-                    this.addMarker(this.options.center, 'Your Location', 'user');
-                }
-            );
-        }
-
-        // Add sample destinations
-        const destinations = [
-            { coords: [20.5937 + 0.05, 78.9629 + 0.05], name: 'Downtown Office', type: 'office' },
-            { coords: [20.5937 - 0.05, 78.9629 - 0.05], name: 'Shopping Mall', type: 'shopping' },
-            { coords: [20.5937, 78.9629 + 0.1], name: 'Hospital', type: 'hospital' },
-            { coords: [20.5937 + 0.1, 78.9629], name: 'University', type: 'education' }
-        ];
-
-        destinations.forEach(dest => {
-            this.addMarker(dest.coords, dest.name, dest.type);
+            `);
         });
     }
 
-    addMarker(coords, title, type = 'default') {
-        const icons = {
-            user: {
+    renderWasteBins() {
+        if (!this.layers.waste) return;
+        this.layers.waste.clearLayers();
+
+        this.data.bins.forEach(bin => {
+            const color = bin.fill >= 85 ? '#DC3545' : (bin.fill >= 50 ? '#FFC107' : '#28A745');
+            const badgeClass = bin.fill >= 85 ? 'urgent' : (bin.fill >= 50 ? 'collect-soon' : 'normal');
+
+            const binIcon = L.divIcon({
+                html: `<div style="
+                    background: ${color};
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 8px;
+                    border: 2.5px solid #FFFFFF;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: #FFFFFF;
+                    font-size: 11px;
+                    font-weight: 700;
+                    ${bin.fill >= 85 ? 'animation: pulse 1.5s infinite;' : ''}
+                ">
+                    <i class="fas fa-trash-alt" style="font-size: 10px;"></i>
+                    <span>${bin.fill}%</span>
+                </div>`,
+                className: 'smart-bin-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            const marker = L.marker([bin.lat, bin.lng], { icon: binIcon }).addTo(this.layers.waste);
+
+            marker.bindPopup(`
+                <div style="font-family: inherit; font-size: 13px; min-width: 200px; padding: 4px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                        <strong style="font-size: 14px;">🗑️ ${bin.id}</strong>
+                        <span style="background: ${color}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px; font-weight: 700;">
+                            ${bin.fill}% Fill
+                        </span>
+                    </div>
+                    <div style="color: #444; margin-bottom: 4px;"><i class="fas fa-map-pin"></i> ${bin.location}</div>
+                    <div style="color: #666; font-size: 12px; margin-bottom: 8px;">Type: ${bin.type}</div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 11px; color: #777; margin-bottom: 2px;">Sensor Telemetry:</div>
+                        <div style="background: #E0E0E0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: ${color}; width: ${bin.fill}%; height: 100%;"></div>
+                        </div>
+                    </div>
+                    ${bin.assignedTruck ? `<div style="font-size: 12px; color: #0077FC; font-weight: 600; margin-bottom: 8px;"><i class="fas fa-truck"></i> Assigned: ${bin.assignedTruck}</div>` : ''}
+                    <button class="btn-primary" style="width: 100%; padding: 6px; font-size: 12px;" onclick="window.cityFlowMap.dispatchTruckTo('${bin.id}')">
+                        <i class="fas fa-route"></i> ${bin.assignedTruck ? 'Re-optimize Route' : 'Dispatch Nearest Truck'}
+                    </button>
+                </div>
+            `);
+        });
+    }
+
+    renderWasteTrucks() {
+        if (!this.layers.waste) return;
+
+        this.data.trucks.forEach(truck => {
+            const truckIcon = L.divIcon({
+                html: `<div style="
+                    background: #231F20;
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    border: 2px solid #28A745;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #28A745;
+                    font-size: 13px;
+                "><i class="fas fa-truck"></i></div>`,
+                className: 'waste-truck-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+
+            L.marker([truck.lat, truck.lng], { icon: truckIcon })
+                .addTo(this.layers.waste)
+                .bindPopup(`
+                    <div style="font-family: inherit; font-size: 13px; padding: 4px;">
+                        <strong style="color: #231F20;"><i class="fas fa-truck-moving" style="color: #28A745;"></i> ${truck.id}</strong><br>
+                        <span>Driver: <strong>${truck.driver}</strong></span><br>
+                        <span>Status: <strong>${truck.status}</strong></span><br>
+                        <span>Current Load: <strong>${truck.capacity}%</strong></span>
+                    </div>
+                `);
+        });
+    }
+
+    renderDeliveryVehicles() {
+        if (!this.layers.delivery) return;
+        this.layers.delivery.clearLayers();
+
+        this.data.deliveries.forEach(del => {
+            const delIcon = L.divIcon({
                 html: `<div style="
                     background: #0077FC;
                     width: 30px;
                     height: 30px;
                     border-radius: 50%;
-                    border: 3px solid white;
-                    box-shadow: 0 0 10px rgba(0, 119, 252, 0.5);
+                    border: 2px solid #FFFFFF;
+                    box-shadow: 0 4px 10px rgba(0, 119, 252, 0.4);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: white;
+                    color: #FFFFFF;
                     font-size: 12px;
-                "><i class="fas fa-user"></i></div>`,
-                size: [30, 30],
-                anchor: [15, 15]
-            },
-            office: {
+                "><i class="fas fa-box"></i></div>`,
+                className: 'del-van-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+
+            L.marker([del.lat, del.lng], { icon: delIcon })
+                .addTo(this.layers.delivery)
+                .bindPopup(`
+                    <div style="font-family: inherit; font-size: 13px; padding: 4px;">
+                        <strong style="color: #0077FC;"><i class="fas fa-shipping-fast"></i> ${del.id}</strong><br>
+                        <span>Driver: ${del.driver}</span><br>
+                        <span>Clustered Orders: <strong>${del.cluster} Deliveries</strong></span><br>
+                        <span>Status: ${del.status}</span>
+                    </div>
+                `);
+        });
+    }
+
+    renderLoadingZones() {
+        if (!this.layers.loading) return;
+        this.layers.loading.clearLayers();
+
+        this.data.loadingZones.forEach(zone => {
+            const isFull = zone.occupied >= zone.total;
+            const color = isFull ? '#DC3545' : '#0077FC';
+
+            const lzIcon = L.divIcon({
                 html: `<div style="
-                    background: #231F20;
-                    width: 25px;
-                    height: 25px;
-                    border-radius: 4px;
-                    border: 2px solid white;
-                    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+                    background: #FFFFFF;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 6px;
+                    border: 2px solid ${color};
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    color: white;
-                    font-size: 10px;
-                "><i class="fas fa-building"></i></div>`,
-                size: [25, 25],
-                anchor: [12.5, 12.5]
-            },
-            hospital: {
-                html: `<div style="
-                    background: #DC3545;
-                    width: 25px;
-                    height: 25px;
-                    border-radius: 50%;
-                    border: 2px solid white;
-                    box-shadow: 0 0 8px rgba(220, 53, 69, 0.5);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-size: 10px;
-                "><i class="fas fa-hospital"></i></div>`,
-                size: [25, 25],
-                anchor: [12.5, 12.5]
-            },
-            default: {
-                html: `<div style="
-                    background: #28A745;
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    border: 2px solid white;
-                    box-shadow: 0 0 6px rgba(0,0,0,0.2);
-                "></div>`,
-                size: [20, 20],
-                anchor: [10, 10]
+                    color: ${color};
+                    font-size: 12px;
+                    font-weight: 700;
+                ">P</div>`,
+                className: 'lz-icon',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
+            });
+
+            L.marker([zone.lat, zone.lng], { icon: lzIcon })
+                .addTo(this.layers.loading)
+                .bindPopup(`
+                    <div style="font-family: inherit; font-size: 13px; padding: 4px;">
+                        <strong>🅿️ ${zone.name}</strong><br>
+                        <span>Occupancy: <strong>${zone.occupied} / ${zone.total} Bays</strong></span><br>
+                        <span style="color: ${isFull ? '#DC3545' : '#28A745'}; font-weight: 600;">
+                            ${isFull ? 'Zone Full - Slot Queue Active' : 'Available for Loading'}
+                        </span>
+                    </div>
+                `);
+        });
+    }
+
+    renderOptimizedRoutes() {
+        if (!this.layers.routes) return;
+        this.layers.routes.clearLayers();
+
+        // Draw Truck 04 dynamic route to Bin B003
+        const truck = this.data.trucks[0];
+        const urgentBin = this.data.bins[0];
+
+        if (truck && urgentBin) {
+            const routeLine = L.polyline([
+                [truck.lat, truck.lng],
+                [(truck.lat + urgentBin.lat) / 2 + 0.002, (truck.lng + urgentBin.lng) / 2 - 0.002],
+                [urgentBin.lat, urgentBin.lng]
+            ], {
+                color: '#28A745',
+                weight: 4,
+                dashArray: '6, 6',
+                opacity: 0.9
+            }).addTo(this.layers.routes);
+
+            routeLine.bindTooltip('🚛 AI Dynamic Waste Route (TRK-04 → BIN-B003)');
+        }
+    }
+
+    filterLayer(type) {
+        this.options.activeFilter = type;
+
+        // Manage visibility
+        if (type === 'all') {
+            this.map.addLayer(this.layers.traffic);
+            this.map.addLayer(this.layers.waste);
+            this.map.addLayer(this.layers.delivery);
+            this.map.addLayer(this.layers.loading);
+            this.map.addLayer(this.layers.routes);
+        } else if (type === 'waste') {
+            this.map.removeLayer(this.layers.traffic);
+            this.map.addLayer(this.layers.waste);
+            this.map.removeLayer(this.layers.delivery);
+            this.map.removeLayer(this.layers.loading);
+            this.map.addLayer(this.layers.routes);
+        } else if (type === 'delivery') {
+            this.map.removeLayer(this.layers.traffic);
+            this.map.removeLayer(this.layers.waste);
+            this.map.addLayer(this.layers.delivery);
+            this.map.addLayer(this.layers.loading);
+            this.map.removeLayer(this.layers.routes);
+        } else if (type === 'traffic') {
+            this.map.addLayer(this.layers.traffic);
+            this.map.removeLayer(this.layers.waste);
+            this.map.removeLayer(this.layers.delivery);
+            this.map.removeLayer(this.layers.loading);
+            this.map.removeLayer(this.layers.routes);
+        } else if (type === 'loading') {
+            this.map.removeLayer(this.layers.traffic);
+            this.map.removeLayer(this.layers.waste);
+            this.map.addLayer(this.layers.delivery);
+            this.map.addLayer(this.layers.loading);
+            this.map.removeLayer(this.layers.routes);
+        }
+
+        // Update active class on chips
+        document.querySelectorAll('.layer-chip').forEach(chip => {
+            if (chip.dataset.layer === type) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
             }
-        };
+        });
+    }
 
-        const iconConfig = icons[type] || icons.default;
-        const icon = L.divIcon({
-            html: iconConfig.html,
-            className: 'custom-marker',
-            iconSize: iconConfig.size,
-            iconAnchor: iconConfig.anchor
+    setupFilterEvents() {
+        document.querySelectorAll('.layer-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const layer = chip.dataset.layer;
+                this.filterLayer(layer);
+            });
         });
 
-        const marker = L.marker(coords, { icon })
-            .addTo(this.map)
-            .bindTooltip(title)
-            .bindPopup(`<strong>${title}</strong><br>${type.toUpperCase()} location`);
-
-        this.markers.push(marker);
-        return marker;
-    }
-
-    addSampleRoutes() {
-        // Sample route from user to office
-        const routeCoordinates = [
-            this.options.center,
-            [20.5937 + 0.02, 78.9629 + 0.02],
-            [20.5937 + 0.05, 78.9629 + 0.05] // Office location
-        ];
-
-        const route = L.polyline(routeCoordinates, {
-            color: '#0077FC',
-            weight: 4,
-            opacity: 0.8,
-            dashArray: '10, 10'
-        }).addTo(this.map);
-
-        this.routes.push(route);
-
-        // Add start and end markers
-        this.addMarker(routeCoordinates[0], 'Start Point', 'user');
-        this.addMarker(routeCoordinates[routeCoordinates.length - 1], 'Destination', 'office');
-
-        // Calculate and display route info
-        const distance = this.calculateDistance(routeCoordinates);
-        const duration = this.calculateDuration(distance, this.trafficData[0]?.congestion || 0.5);
-        
-        route.bindTooltip(`
-            <strong>Route to Office</strong><br>
-            Distance: ${distance.toFixed(1)} km<br>
-            Duration: ${duration} minutes<br>
-            Traffic: ${Math.round((this.trafficData[0]?.congestion || 0.5) * 100)}%
-        `);
-    }
-
-    calculateDistance(coordinates) {
-        // Simple distance calculation (Haversine formula simplified)
-        let total = 0;
-        for (let i = 1; i < coordinates.length; i++) {
-            const [lat1, lng1] = coordinates[i - 1];
-            const [lat2, lng2] = coordinates[i];
-            const dLat = (lat2 - lat1) * 111.32; // km per degree latitude
-            const dLng = (lng2 - lng1) * 111.32 * Math.cos(lat1 * Math.PI / 180);
-            total += Math.sqrt(dLat * dLat + dLng * dLng);
-        }
-        return total;
-    }
-
-    calculateDuration(distanceKm, congestion) {
-        const baseSpeed = 40; // km/h in normal traffic
-        const effectiveSpeed = baseSpeed * (1 - congestion * 0.6);
-        const durationHours = distanceKm / Math.max(effectiveSpeed, 10);
-        return Math.round(durationHours * 60);
-    }
-
-    addControls() {
-        // Add zoom controls
-        L.control.zoom({
-            position: 'topright'
-        }).addTo(this.map);
-
-        // Add geolocation control
-        const locateControl = L.control({ position: 'topright' });
-        
-        locateControl.onAdd = () => {
-            const div = L.DomUtil.create('div', 'locate-control');
-            div.innerHTML = `
-                <button style="
-                    background: white;
-                    border: none;
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 4px;
-                    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #0077FC;
-                    font-size: 18px;
-                " title="Locate me">
-                    <i class="fas fa-location-arrow"></i>
-                </button>
-            `;
-            
-            div.querySelector('button').addEventListener('click', () => {
-                this.locateUser();
-            });
-            
-            return div;
-        };
-        
-        locateControl.addTo(this.map);
-
-        // Add traffic toggle control
-        const trafficControl = L.control({ position: 'topright' });
-        
-        trafficControl.onAdd = () => {
-            const div = L.DomUtil.create('div', 'traffic-control');
-            div.innerHTML = `
-                <button style="
-                    background: white;
-                    border: none;
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 4px;
-                    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: ${this.options.trafficOverlay ? '#0077FC' : '#666'};
-                    font-size: 18px;
-                " title="Toggle traffic">
-                    <i class="fas fa-traffic-light"></i>
-                </button>
-            `;
-            
-            div.querySelector('button').addEventListener('click', () => {
-                this.toggleTraffic();
-                div.querySelector('button').style.color = this.options.trafficOverlay ? '#0077FC' : '#666';
-            });
-            
-            return div;
-        };
-        
-        trafficControl.addTo(this.map);
-    }
-
-    locateUser() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    const { latitude, longitude } = position.coords;
-                    this.map.setView([latitude, longitude], 15);
-                    
-                    // Add or update user marker
-                    const existingUserMarker = this.markers.find(m => 
-                        m.getTooltip()?.getContent() === 'Your Location'
-                    );
-                    
-                    if (existingUserMarker) {
-                        existingUserMarker.setLatLng([latitude, longitude]);
-                    } else {
-                        this.addMarker([latitude, longitude], 'Your Location', 'user');
-                    }
-                },
-                error => {
-                    alert('Unable to get your location. Please enable location services.');
+        const recenterBtn = document.getElementById('recenterMapBtn');
+        if (recenterBtn) {
+            recenterBtn.addEventListener('click', () => {
+                if (this.userLocation) {
+                    this.map.setView(this.userLocation, 14);
+                } else {
+                    this.map.setView(this.options.center, 13);
                 }
-            );
-        }
-    }
-
-    toggleTraffic() {
-        this.options.trafficOverlay = !this.options.trafficOverlay;
-        
-        if (this.options.trafficOverlay) {
-            this.renderTraffic();
-        } else if (this.trafficLayer) {
-            this.trafficLayer.clearLayers();
-        }
-    }
-
-    showRoadDetails(road) {
-        const modalContent = `
-            <div class="road-details">
-                <h4 style="margin-bottom: 1rem;">${road.name}</h4>
-                
-                <div class="road-metrics">
-                    <div class="metric">
-                        <span class="metric-label">Congestion</span>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${road.congestion * 100}%; background: ${this.getTrafficColor(road.congestion)};"></div>
-                        </div>
-                        <span class="metric-value">${Math.round(road.congestion * 100)}%</span>
-                    </div>
-                    
-                    <div class="metric">
-                        <span class="metric-label">Average Speed</span>
-                        <span class="metric-value">${road.speed} km/h</span>
-                    </div>
-                    
-                    <div class="metric">
-                        <span class="metric-label">Travel Time</span>
-                        <span class="metric-value">${Math.round(10 / road.speed * 60)} min per 10km</span>
-                    </div>
-                </div>
-                
-                ${road.incidents ? `
-                    <div class="incident-alert">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <div>
-                            <strong>Incident Reported</strong>
-                            <p>${road.incidents.charAt(0).toUpperCase() + road.incidents.slice(1)}</p>
-                        </div>
-                    </div>
-                ` : ''}
-                
-                <div class="road-actions">
-                    <button class="btn-primary" onclick="smartRoadsMap.avoidRoad('${road.name}')">
-                        <i class="fas fa-route"></i> Avoid This Road
-                    </button>
-                    <button class="btn-text" onclick="smartRoadsMap.shareTrafficInfo('${road.name}')">
-                        <i class="fas fa-share"></i> Share Info
-                    </button>
-                </div>
-                
-                <style>
-                    .road-details { padding: 1rem; }
-                    .road-metrics { margin: 1.5rem 0; }
-                    .metric {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        margin-bottom: 1rem;
-                        padding-bottom: 1rem;
-                        border-bottom: 1px solid var(--border);
-                    }
-                    .metric:last-child {
-                        border-bottom: none;
-                        margin-bottom: 0;
-                        padding-bottom: 0;
-                    }
-                    .metric-label {
-                        flex: 1;
-                        color: var(--text-light);
-                    }
-                    .progress-bar {
-                        flex: 2;
-                        height: 8px;
-                        background: var(--border);
-                        border-radius: 4px;
-                        overflow: hidden;
-                        margin: 0 1rem;
-                    }
-                    .progress-fill {
-                        height: 100%;
-                        border-radius: 4px;
-                    }
-                    .metric-value {
-                        font-weight: 600;
-                        min-width: 60px;
-                        text-align: right;
-                    }
-                    .incident-alert {
-                        background: rgba(220, 53, 69, 0.1);
-                        border-left: 4px solid var(--danger);
-                        padding: 1rem;
-                        border-radius: var(--radius-md);
-                        display: flex;
-                        align-items: center;
-                        gap: 1rem;
-                        margin-bottom: 1.5rem;
-                    }
-                    .incident-alert i {
-                        color: var(--danger);
-                        font-size: 1.5rem;
-                    }
-                    .road-actions {
-                        display: flex;
-                        gap: 0.5rem;
-                        margin-top: 1.5rem;
-                    }
-                    .road-actions button {
-                        flex: 1;
-                    }
-                </style>
-            </div>
-        `;
-        
-        window.app.showModal('Road Details', modalContent);
-    }
-
-    avoidRoad(roadName) {
-        console.log(`Avoiding road: ${roadName}`);
-        // In a real app, this would update route planning
-        window.app.showNotification(`Will avoid ${roadName} in future routes`, 'success');
-    }
-
-    shareTrafficInfo(roadName) {
-        const road = this.trafficData.find(r => r.name === roadName);
-        if (!road) return;
-
-        const shareText = `Traffic on ${roadName}: ${Math.round(road.congestion * 100)}% congestion, ${road.speed} km/h average speed`;
-        
-        if (navigator.share) {
-            navigator.share({
-                title: `Traffic Info: ${roadName}`,
-                text: shareText,
-                url: window.location.href
             });
-        } else {
-            navigator.clipboard.writeText(shareText);
-            window.app.showNotification('Traffic info copied to clipboard', 'success');
+        }
+
+        const optimizeBtn = document.getElementById('optimizeAllRoutesBtn');
+        if (optimizeBtn) {
+            optimizeBtn.addEventListener('click', () => this.triggerGlobalOptimization());
         }
     }
 
-    startTrafficUpdates() {
-        // Update traffic data every 30 seconds
-        setInterval(async () => {
-            await this.loadTrafficData();
-            this.renderTraffic();
-            console.log('Traffic data updated');
-        }, 30000);
+    setupMapInteractionEvents() {
+        if (!this.map) return;
 
-        // Simulate real-time traffic changes
-        setInterval(() => {
-            this.simulateTrafficChange();
-        }, 10000);
-    }
-
-    simulateTrafficChange() {
-        // Randomly update traffic conditions
-        this.trafficData = this.trafficData.map(road => {
-            const change = (Math.random() * 0.1 - 0.05); // -5% to +5% change
-            const newCongestion = Math.min(1, Math.max(0, road.congestion + change));
+        // Dynamic Click Traffic Inspector
+        this.map.on('click', async (e) => {
+            const { lat, lng } = e.latlng;
             
-            return {
-                ...road,
-                congestion: newCongestion,
-                speed: Math.floor(60 * (1 - newCongestion)),
-                incidents: road.incidents && Math.random() > 0.7 ? null : 
-                         !road.incidents && Math.random() > 0.95 ? 
-                         ['accident', 'construction', 'event'][Math.floor(Math.random() * 3)] : 
-                         road.incidents,
-                updatedAt: new Date().toISOString()
-            };
+            // Show temporary loading indicator popup
+            const popup = L.popup()
+                .setLatLng([lat, lng])
+                .setContent(`
+                    <div style="font-family: inherit; font-size: 13px; padding: 6px; text-align: center;">
+                        <i class="fas fa-spinner fa-spin" style="color: #0077FC; font-size: 16px;"></i>
+                        <div style="margin-top: 4px; font-weight: 600;">Probing Live Traffic Telemetry...</div>
+                        <small style="color: #666;">Querying TomTom Traffic Flow</small>
+                    </div>
+                `)
+                .openOn(this.map);
+
+            try {
+                const res = await fetch(`/api/tomtom/traffic-flow?lat=${lat}&lng=${lng}`);
+                const data = await res.json();
+                
+                const speed = data.currentSpeed || 24;
+                const freeSpeed = data.freeFlowSpeed || 50;
+                const congestion = data.congestionIndex || Math.min(100, Math.round((1 - speed / freeSpeed) * 100));
+                const delaySec = data.flowData?.currentTravelTime ? (data.flowData.currentTravelTime - data.flowData.freeFlowTravelTime) : Math.round(congestion * 1.5);
+                const delayMin = Math.max(0, Math.round(delaySec / 60));
+                
+                const statusColor = congestion > 70 ? '#DC3545' : (congestion > 40 ? '#FFC107' : '#28A745');
+                const statusLabel = congestion > 70 ? 'Heavy Congestion' : (congestion > 40 ? 'Moderate Transit Flow' : 'Free Flowing');
+
+                popup.setContent(`
+                    <div style="font-family: inherit; font-size: 13px; min-width: 220px; padding: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #E0E0E0; padding-bottom: 6px;">
+                            <strong style="color: #231F20;"><i class="fas fa-traffic-light" style="color: ${statusColor};"></i> Traffic Telemetry</strong>
+                            <span style="background: ${statusColor}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;">
+                                ${statusLabel}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #F8F9FA; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                            <div>
+                                <small style="color: #666;">Current Speed:</small><br>
+                                <strong style="font-size: 14px; color: ${statusColor};">${speed} km/h</strong>
+                            </div>
+                            <div>
+                                <small style="color: #666;">Free-Flow Speed:</small><br>
+                                <strong style="font-size: 14px; color: #231F20;">${freeSpeed} km/h</strong>
+                            </div>
+                        </div>
+                        <div style="font-size: 12px; margin-bottom: 6px;">
+                            <span>Congestion Index: <strong>${congestion}%</strong></span><br>
+                            <span>Travel Delay: <strong>${delayMin > 0 ? `+${delayMin} min` : 'Normal (0 min)'}</strong></span>
+                        </div>
+                        <div style="background: rgba(0, 119, 252, 0.08); border-left: 3px solid #0077FC; padding: 6px; border-radius: 4px; font-size: 11px; color: #0056CC;">
+                            <i class="fas fa-robot"></i> <strong>AI Action:</strong> ${congestion > 60 ? 'Extended green phase active. Rerouting delivery cluster.' : 'Corridor in optimal transit window.'}
+                        </div>
+                    </div>
+                `);
+            } catch (err) {
+                popup.setContent(`
+                    <div style="font-family: inherit; font-size: 12px; padding: 4px;">
+                        <strong style="color: #28A745;"><i class="fas fa-check-circle"></i> Road Corridor Active</strong><br>
+                        <span>Coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}</span><br>
+                        <small style="color: #666;">Traffic flow normal across this segment.</small>
+                    </div>
+                `);
+            }
         });
 
-        // Save updated data
-        localStorage.setItem('smartroads_traffic', JSON.stringify(this.trafficData));
-        
-        // Update display if traffic overlay is active
-        if (this.options.trafficOverlay) {
-            this.renderTraffic();
+        // Dynamic Zoom Event Listener - Adapt traffic visibility & weight
+        this.map.on('zoomend', () => {
+            const currentZoom = this.map.getZoom();
+            const trafficLayer = this.layers.traffic;
+            if (trafficLayer) {
+                // Adjust traffic polyline weight based on zoom level
+                const newWeight = currentZoom >= 15 ? 8 : (currentZoom >= 13 ? 6 : 4);
+                trafficLayer.eachLayer(layer => {
+                    if (layer instanceof L.Polyline) {
+                        layer.setStyle({ weight: newWeight });
+                    }
+                });
+            }
+        });
+    }
+
+    async triggerGlobalOptimization() {
+        const optimizeBtn = document.getElementById('optimizeAllRoutesBtn');
+        if (optimizeBtn) {
+            optimizeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing with AI...';
+        }
+
+        try {
+            const res = await fetch('/api/cityflow/optimize-waste', { method: 'POST' });
+            const data = await res.json();
+            
+            setTimeout(() => {
+                if (window.app && window.app.showModal) {
+                    window.app.showModal('CityFlow AI Route Optimization', `
+                        <div style="font-size: 14px; line-height: 1.5;">
+                            <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px; color: #28A745;">
+                                <i class="fas fa-check-circle" style="font-size: 28px;"></i>
+                                <div>
+                                    <strong style="font-size: 16px; color: #231F20;">Optimization Successful</strong>
+                                    <div style="font-size: 12px; color: #666;">Generated dynamic routes via MCP server & OpenRouteService</div>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: #F8F9FA; padding: 12px; border-radius: 8px; margin-bottom: 16px; text-align: center;">
+                                <div>
+                                    <div style="font-size: 11px; color: #666;">Distance Saved</div>
+                                    <strong style="color: #28A745; font-size: 16px;">${data.totalKilometersSaved}</strong>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #666;">Trips Eliminated</div>
+                                    <strong style="color: #0077FC; font-size: 16px;">${data.tripsEliminated}</strong>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: #666;">Fuel Saved</div>
+                                    <strong style="color: #28A745; font-size: 16px;">${data.fuelSaved}</strong>
+                                </div>
+                            </div>
+                            <h5 style="margin-bottom: 8px; font-weight: 600;">Assigned Priority Dispatches:</h5>
+                            <div style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto;">
+                                ${data.assignedRoutes.map(r => `
+                                    <div style="padding: 8px 10px; background: #FFFFFF; border: 1px solid #E0E0E0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <strong>${r.binId}</strong> (${r.location})<br>
+                                            <small style="color: #DC3545;">Fill: ${r.fillLevel}%</small>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span style="background: #0077FC; color: white; padding: 2px 6px; border-radius: 10px; font-size: 11px;">${r.assignedTruck}</span><br>
+                                            <small style="color: #666;">ETA ${r.timeEstimated}</small>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `);
+                }
+
+                if (optimizeBtn) {
+                    optimizeBtn.innerHTML = '<i class="fas fa-magic"></i> AI Route Optimization';
+                }
+            }, 700);
+        } catch (e) {
+            console.error(e);
+            if (optimizeBtn) optimizeBtn.innerHTML = '<i class="fas fa-magic"></i> AI Route Optimization';
         }
     }
 
-    addRoute(from, to, waypoints = []) {
-        const coordinates = [from, ...waypoints, to];
-        
-        const route = L.polyline(coordinates, {
-            color: '#0077FC',
-            weight: 4,
-            opacity: 0.8
-        }).addTo(this.map);
-        
-        this.routes.push(route);
-        return route;
-    }
-
-    clearRoutes() {
-        this.routes.forEach(route => route.remove());
-        this.routes = [];
-    }
-
-    clearMarkers() {
-        this.markers.forEach(marker => marker.remove());
-        this.markers = [];
-    }
-
-    destroy() {
-        if (this.map) {
-            this.map.remove();
-            this.map = null;
+    async dispatchTruckTo(binId) {
+        try {
+            const res = await fetch('/api/cityflow/dispatch-truck', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ binId })
+            });
+            const data = await res.json();
+            
+            if (window.app && window.app.showModal) {
+                window.app.showModal('Dispatch Confirmed', `
+                    <div style="text-align: center; padding: 12px 0;">
+                        <i class="fas fa-truck" style="font-size: 36px; color: #28A745; margin-bottom: 12px;"></i>
+                        <h4 style="margin-bottom: 6px;">Truck #04 Dispatched!</h4>
+                        <p style="color: #666; font-size: 13px;">${data.message}</p>
+                        <div style="margin-top: 12px; padding: 8px; background: #F8F9FA; border-radius: 6px; font-size: 12px;">
+                            Route calculated avoiding congested Zone A. Estimated transit time: <strong>4 minutes</strong>.
+                        </div>
+                    </div>
+                `);
+            }
+        } catch (e) {
+            console.error(e);
         }
-        
-        this.markers = [];
-        this.routes = [];
-        this.trafficData = {};
+    }
+
+    startRealtimeTicker() {
+        setInterval(() => {
+            // Subtle simulated drift/updates for trucks & vans
+            this.data.trucks.forEach(t => {
+                t.lat += (Math.random() - 0.5) * 0.0003;
+                t.lng += (Math.random() - 0.5) * 0.0003;
+            });
+            this.data.deliveries.forEach(d => {
+                d.lat += (Math.random() - 0.5) * 0.0003;
+                d.lng += (Math.random() - 0.5) * 0.0003;
+            });
+            this.renderWasteTrucks();
+            this.renderDeliveryVehicles();
+        }, 15000);
+    }
+
+    updateLiveData(state) {
+        if (!state) return;
+
+        // If new trucks coordinates received
+        if (state.waste && state.waste.trucks) {
+            this.data.trucks = state.waste.trucks.map(trk => ({
+                id: trk.id,
+                name: trk.driver,
+                status: trk.status,
+                capacity: trk.capacity,
+                lat: trk.lat,
+                lng: trk.lng,
+                target: trk.targetBin,
+                eta: trk.eta
+            }));
+            this.renderWasteTrucks();
+        }
+
+        // If new bins status received
+        if (state.waste && state.waste.bins) {
+            this.data.bins = state.waste.bins.map(bin => ({
+                id: bin.id,
+                name: bin.location,
+                fill: bin.fillLevel,
+                type: bin.type,
+                lat: bin.lat,
+                lng: bin.lng,
+                status: bin.status,
+                lastEmptied: bin.lastEmptied
+            }));
+            this.renderWasteBins();
+        }
+
+        // If new delivery coordinates received
+        if (state.logistics && state.logistics.vehicles) {
+            this.data.deliveries = state.logistics.vehicles.map(veh => ({
+                id: veh.id,
+                name: veh.driver,
+                packages: veh.clusterSize,
+                status: veh.status,
+                lat: veh.lat,
+                lng: veh.lng,
+                progress: veh.routeProgress
+            }));
+            this.renderDeliveryVehicles();
+        }
     }
 }
 
-// Export for use in other modules
-window.SmartRoadsMap = SmartRoadsMap;
+// Global initialization helper
+window.CityFlowMap = CityFlowMap;

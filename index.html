@@ -2,220 +2,989 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Smart Roads - Intelligent Transportation Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityFlow AI - Smart Urban Traffic, Logistics & Waste Management Platform</title>
     <meta name="theme-color" content="#0077FC">
-    <meta name="description" content="Smart Roads - Real-time traffic intelligence and route optimization">
+    <meta name="description" content="CityFlow AI is a comprehensive enterprise smart city operations platform that coordinates urban traffic flow, freight logistics, waste collection routing, and municipal assets in real time.">
+    <meta name="keywords" content="smart city, urban traffic management, waste route optimization, fleet logistics, TomTom traffic API, municipal operations, green corridor, emission reduction, IoT telemetry">
+    <meta name="author" content="CityFlow AI Technologies">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook / LinkedIn -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://cityflow.ai/">
+    <meta property="og:title" content="CityFlow AI - Smart Urban Traffic, Logistics & Waste Platform">
+    <meta property="og:description" content="AI-driven urban resource coordination, dynamic route optimization, and live municipal telemetry for modern sustainable cities.">
+    <meta property="og:image" content="/IMG_7383.PNG">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CityFlow AI - Smart Urban Operations">
+    <meta name="twitter:description" content="Real-time traffic flow intelligence, smart waste collection dispatch, and commercial freight logistics optimization.">
+    <meta name="twitter:image" content="/IMG_7383.PNG">
+
+    <!-- Structured Data (JSON-LD) for Search Engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "CityFlow AI",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, Cloud",
+      "description": "Smart Urban Traffic, Logistics & Waste Management Platform utilizing AI-driven route optimization and real-time municipal telemetry.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
     
     <!-- iOS Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Smart Roads">
-    <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
-    
-    <!-- Styles -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/pwa.css">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CityFlow AI">
+    <link rel="apple-touch-icon" href="/IMG_7383.PNG">
     
     <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/pwa.css">
 </head>
 <body>
-    <!-- App Container -->
+    <!-- PWA Install Prompt -->
+    <div id="installPrompt" class="install-prompt">
+        <div class="install-content">
+            <div class="install-icon">
+                <i class="fas fa-network-wired" style="font-size: 2rem; color: #0077FC;"></i>
+            </div>
+            <div class="install-text">
+                <h3>Install CityFlow AI</h3>
+                <p>Add CityFlow AI to your desktop or device for smart city operations.</p>
+            </div>
+            <div class="install-actions">
+                <button id="dismissInstall" class="btn-text">Later</button>
+                <button id="installBtn" class="btn-primary">Install</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Container (Full-Screen Desktop Portal Layout) -->
     <div class="app-container">
-        <!-- App Header -->
-        <header class="app-header">
+        <!-- App Header (Desktop Navigation Bar) -->
+        <header class="app-header" id="mainHeader">
             <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-road"></i>
-                    <h1>Smart Roads</h1>
+                <div class="logo-section">
+                    <a href="/index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
+                        <div class="logo-icon" style="background: linear-gradient(135deg, #0077FC, #0056CC); color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
+                            <i class="fas fa-network-wired"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1 style="font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-dark); margin: 0;">CityFlow <span style="color: var(--primary-blue);">AI</span></h1>
+                            <p style="font-size: 0.75rem; color: var(--text-light); margin: 0;">Enterprise Smart City Portal</p>
+                        </div>
+                    </a>
                 </div>
+
+                <!-- Desktop Navigation Menu Links -->
+                <nav class="desktop-nav-links" id="desktopNavLinks">
+                    <a href="#heroSection" class="desktop-nav-link active">Overview</a>
+                    <a href="#operationsMapSection" class="desktop-nav-link">Operations Map</a>
+                    <a href="#analyticsDashboardSection" class="desktop-nav-link">Analytics</a>
+                    <a href="/commuters.html" class="desktop-nav-link">Smart Waste</a>
+                    <a href="/delivery.html" class="desktop-nav-link">Logistics</a>
+                    <a href="/cab-drivers.html" class="desktop-nav-link">Traffic Control</a>
+                    <a href="/emergency.html" class="desktop-nav-link">Emergency</a>
+                </nav>
+
                 <div class="header-actions">
-                    <button class="icon-btn" id="notificationBtn">
+                    <div class="status-indicator live" style="display: flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(40, 167, 69, 0.1); border-radius: 14px; font-size: 0.8rem; font-weight: 600; color: #28A745;">
+                        <span class="status-dot online" style="width: 8px; height: 8px; background: #28A745; border-radius: 50%;"></span>
+                        <span id="headerStatusText">Live Connected</span>
+                    </div>
+                    <button class="icon-btn" id="notificationBtn" title="Alerts Stream">
                         <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
+                        <span class="notification-badge" style="background: #DC3545; color: white; font-size: 0.65rem; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; position: absolute; top: 4px; right: 4px;">4</span>
                     </button>
-                    <button class="icon-btn" id="profileBtn">
-                        <i class="fas fa-user"></i>
+                    <button class="icon-btn" id="profileBtn" title="System Settings">
+                        <i class="fas fa-sliders-h"></i>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Hero Section -->
-            <section class="hero-section">
-                <div class="hero-content">
-                    <h2>Intelligent Traffic Solutions</h2>
-                    <p>Real-time traffic prediction, route optimization, and smart planning for everyone on the road</p>
-                    <div class="traffic-status">
-                        <span class="status-label">Current City Traffic:</span>
-                        <span class="status-value moderate">Moderate</span>
+        <!-- Hero Section with Weather Impact Card -->
+        <section class="hero-section" id="heroSection">
+            <div class="hero-content">
+                <div class="hero-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin-bottom: 0.75rem; color: #FFFFFF;">
+                    <i class="fas fa-bolt"></i> AI-Powered Traffic, Logistics & Smart Waste Platform
+                </div>
+                <h2 style="font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.75rem;">Smarter Cities.<br>Better Routes. Cleaner Streets.</h2>
+                <p class="hero-subtitle" style="font-size: 1rem; opacity: 0.95; line-height: 1.5; max-width: 680px;">
+                    CityFlow AI intelligently coordinates urban traffic, delivery logistics, waste collection, and city resources using real-time telemetry, predictive AI, and dynamic route optimization.
+                </p>
+
+                <!-- Action CTA Buttons -->
+                <div class="hero-cta-group" id="heroCtaGroup">
+                    <a href="#operationsMapSection" class="btn-white-hero" id="ctaExploreDashboard">
+                        <i class="fas fa-map-marked-alt"></i> Explore Live Operations Map
+                    </a>
+                    <a href="#analyticsDashboardSection" class="btn-secondary-hero" id="ctaAnalyticsDashboard">
+                        <i class="fas fa-chart-line"></i> Performance Analytics
+                    </a>
+                    <button class="btn-secondary-hero" id="optimizeWasteHeroBtn" onclick="if(window.cityFlowMap) window.cityFlowMap.triggerGlobalOptimization();">
+                        <i class="fas fa-magic"></i> AI Route Optimization
+                    </button>
+                </div>
+
+                <!-- Live Weather & Road Impact Alert Card -->
+                <div class="hero-weather-card" id="heroWeatherCard">
+                    <div class="weather-header">
+                        <div class="weather-header-title">
+                            <i class="fas fa-cloud-sun"></i>
+                            <span>Live Weather & Road Impact Advisory</span>
+                        </div>
+                        <span class="weather-source-badge" id="weatherSourceBadge"><i class="fas fa-satellite"></i> Open-Meteo Synced</span>
+                    </div>
+                    <div class="weather-main-grid">
+                        <div class="weather-temp-block">
+                            <i class="fas fa-cloud-rain" id="weatherIcon"></i>
+                            <div>
+                                <div class="weather-degrees" id="weatherTemp">28°C</div>
+                                <div class="weather-condition-label" id="weatherCondition">Passing Showers / Humid</div>
+                            </div>
+                        </div>
+                        <div class="weather-metrics-list">
+                            <div class="weather-metric-pill" id="weatherHumidityPill">
+                                <i class="fas fa-droplet"></i> Humidity: <strong id="weatherHumidityVal">72%</strong>
+                            </div>
+                            <div class="weather-metric-pill" id="weatherWindPill">
+                                <i class="fas fa-wind"></i> Wind: <strong id="weatherWindVal">14 km/h</strong>
+                            </div>
+                            <div class="weather-metric-pill" id="weatherSensPill">
+                                <i class="fas fa-temperature-half"></i> Feels Like: <strong id="weatherSensVal">31°C</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="weather-road-alert" id="weatherRoadAlert">
+                        <span class="road-alert-badge" id="roadAlertBadge"><i class="fas fa-exclamation-triangle"></i> Wet Pavement</span>
+                        <span id="roadAlertDescription" style="line-height: 1.4;">
+                            Wet pavement detected in Central Corridor. Recommended +15% braking buffer and reduced speed limit for heavy waste collection trucks and delivery fleets.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Content -->
+        <main class="main-content" style="padding: 1.5rem 1rem;">
+            
+            <!-- Live Operational KPIs Section -->
+            <section class="dashboard-kpi-section" id="kpiSection" style="margin-bottom: 2rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-chart-line"></i> Real-Time Telemetry</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Smart City Operational Metrics</h3>
+                    <p class="section-subtitle-text">Unified real-time tracking of city infrastructure, traffic flow, and municipal resource capacity.</p>
+                </div>
+
+                <div class="kpi-grid" id="kpiGrid">
+                    <!-- KPI 1: Traffic Level -->
+                    <div class="kpi-card" id="kpiCardTraffic">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap traffic">
+                                <i class="fas fa-traffic-light"></i>
+                            </div>
+                            <span class="kpi-badge" style="background: rgba(220, 53, 69, 0.1); color: #DC3545;">68% Congestion</span>
+                        </div>
+                        <div>
+                            <div class="kpi-value" style="color: #DC3545;">HIGH</div>
+                            <div class="kpi-label">Traffic Congestion Index</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2: Active Delivery Vehicles -->
+                    <div class="kpi-card" id="kpiCardDelivery">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap delivery">
+                                <i class="fas fa-truck-fast"></i>
+                            </div>
+                            <span class="kpi-badge" style="background: rgba(0, 119, 252, 0.1); color: var(--primary-blue);">28 Clustered</span>
+                        </div>
+                        <div>
+                            <div class="kpi-value">83 Active</div>
+                            <div class="kpi-label">Active Delivery Vehicles</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3: Bins Requiring Collection -->
+                    <div class="kpi-card" id="kpiCardWaste">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap urgent">
+                                <i class="fas fa-trash-can"></i>
+                            </div>
+                            <span class="kpi-badge" style="background: rgba(220, 53, 69, 0.1); color: #DC3545;">5 Urgent >85%</span>
+                        </div>
+                        <div>
+                            <div class="kpi-value" style="color: #DC3545;">17 Bins</div>
+                            <div class="kpi-label">Requiring Collection</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4: Available Waste Trucks -->
+                    <div class="kpi-card" id="kpiCardTrucks">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap waste">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <span class="kpi-badge" style="background: rgba(40, 167, 69, 0.1); color: #28A745;">18 Dispatched</span>
+                        </div>
+                        <div>
+                            <div class="kpi-value">24 Trucks</div>
+                            <div class="kpi-label">Available Municipal Fleet</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 5: Active Delivery Orders -->
+                    <div class="kpi-card" id="kpiCardOrders">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap delivery">
+                                <i class="fas fa-boxes-stacked"></i>
+                            </div>
+                            <span class="kpi-badge" style="background: rgba(0, 119, 252, 0.1); color: var(--primary-blue);">94% On-Time</span>
+                        </div>
+                        <div>
+                            <div class="kpi-value">142 Orders</div>
+                            <div class="kpi-label">Active Logistics Packages</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI 6: Resource Utilisation -->
+                    <div class="kpi-card" id="kpiCardResource">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap waste">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                            <span class="kpi-badge" style="background: rgba(40, 167, 69, 0.1); color: #28A745;">-28% Fuel Burn</span>
+                        </div>
+                        <div>
+                            <div class="kpi-value">86%</div>
+                            <div class="kpi-label">City Resource Efficiency</div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Action Cards Grid -->
-            <section class="modules-grid">
-                <h3 class="section-title">Select Your Module</h3>
-                
-                <div class="cards-container">
-                    <!-- Daily Commuters Card -->
-                    <a href="/modules/commuters.html" class="module-card" data-module="commuters">
-                        <div class="card-icon">
-                            <i class="fas fa-users"></i>
+            <!-- Interactive Map Section -->
+            <section class="map-section-wrapper" id="operationsMapSection">
+                <div class="section-heading-block" style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+                        <div>
+                            <span class="section-tag"><i class="fas fa-map-location-dot"></i> Live Operations Map</span>
+                            <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-dark);">CityFlow AI Geo-Operations Console</h3>
+                            <p class="section-subtitle-text">Interactive geospatial map centered on current location. Real-time telemetry for waste bins, collection trucks, delivery vans, and traffic density.</p>
                         </div>
-                        <div class="card-content">
-                            <h4>Daily Commuters</h4>
-                            <p>Group planning & predictive traffic advice</p>
-                        </div>
-                        <div class="card-badge">
-                            <span class="live-indicator"></span>
-                            Live
-                        </div>
-                    </a>
+                    </div>
+                </div>
 
-                    <!-- Delivery Drivers Card -->
-                    <a href="/modules/delivery.html" class="module-card" data-module="delivery">
-                        <div class="card-icon">
-                            <i class="fas fa-shipping-fast"></i>
-                        </div>
-                        <div class="card-content">
-                            <h4>Delivery Drivers</h4>
-                            <p>Live parcel tracking & route optimization</p>
-                        </div>
-                        <div class="card-badge">
-                            <span class="live-indicator"></span>
-                            Live
-                        </div>
-                    </a>
+                <!-- Map Layer Filtering Toolbar -->
+                <div class="map-controls-toolbar">
+                    <div class="map-layer-chips">
+                        <button class="layer-chip active" data-layer="all" id="filterLayerAll">
+                            <i class="fas fa-layer-group"></i> All Layers (28)
+                        </button>
+                        <button class="layer-chip" data-layer="waste" id="filterLayerWaste">
+                            <i class="fas fa-trash-alt" style="color: #28A745;"></i> Smart Bins & Trucks
+                        </button>
+                        <button class="layer-chip" data-layer="delivery" id="filterLayerDelivery">
+                            <i class="fas fa-box" style="color: var(--primary-blue);"></i> Delivery Vans
+                        </button>
+                        <button class="layer-chip" data-layer="traffic" id="filterLayerTraffic">
+                            <i class="fas fa-traffic-light" style="color: #FFC107;"></i> Traffic Corridors
+                        </button>
+                        <button class="layer-chip" data-layer="loading" id="filterLayerLoading">
+                            <i class="fas fa-square-parking" style="color: #0077FC;"></i> Loading Zones
+                        </button>
+                    </div>
 
-                    <!-- Cab Drivers Card -->
-                    <a href="/modules/cab-drivers.html" class="module-card" data-module="cab">
-                        <div class="card-icon">
-                            <i class="fas fa-taxi"></i>
-                        </div>
-                        <div class="card-content">
-                            <h4>Cab Drivers</h4>
-                            <p>Smart wait suggestions & trip optimization</p>
-                        </div>
-                        <div class="card-badge">
-                            <span class="live-indicator"></span>
-                            Live
-                        </div>
-                    </a>
+                    <div class="map-action-buttons">
+                        <button class="btn-map-action" id="recenterMapBtn" title="Recenter on My Geolocation">
+                            <i class="fas fa-crosshairs"></i> My Location
+                        </button>
+                        <button class="btn-map-action primary" id="optimizeAllRoutesBtn">
+                            <i class="fas fa-magic"></i> AI Route Optimization
+                        </button>
+                    </div>
+                </div>
 
-                    <!-- Emergency Services Card -->
-                    <a href="/modules/emergency.html" class="module-card" data-module="emergency">
-                        <div class="card-icon">
-                            <i class="fas fa-ambulance"></i>
-                        </div>
-                        <div class="card-content">
-                            <h4>Emergency Services</h4>
-                            <p>Priority routing & real-time coordination</p>
-                        </div>
-                        <div class="card-badge urgent">
-                            <span class="live-indicator"></span>
-                            Urgent
-                        </div>
-                    </a>
+                <!-- Leaflet Map Container -->
+                <div id="cityflowMap" style="height: 480px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--border); overflow: hidden; position: relative;"></div>
+
+                <!-- Map Legend / Quick Status Bar -->
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between; margin-top: 1rem; padding: 0.75rem 1rem; background: var(--background-alt); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--text-light);">
+                    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                        <span><strong style="color: #DC3545;">● Red Bins:</strong> Critical (>85% Fill)</span>
+                        <span><strong style="color: #FFC107;">● Yellow Bins:</strong> Collect Soon (50-84%)</span>
+                        <span><strong style="color: #28A745;">● Green Bins:</strong> Normal (<50%)</span>
+                        <span><strong style="color: #231F20;">🚛 Green Ring:</strong> Waste Collection Truck</span>
+                        <span><strong style="color: #0077FC;">📦 Blue Dot:</strong> Clustered Delivery Van</span>
+                    </div>
+                    <div>
+                        <span style="color: #28A745; font-weight: 600;"><i class="fas fa-check-double"></i> Live GPS Feed Active</span>
+                    </div>
                 </div>
             </section>
 
-            <!-- Live Updates Section -->
-            <section class="updates-section">
-                <h3 class="section-title">Live Traffic Updates</h3>
-                <div class="updates-list">
-                    <div class="update-item">
-                        <div class="update-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
+            <!-- Section 3: Smart Waste Management Interactive Simulator -->
+            <section class="waste-management-section" id="smartWasteSection" style="margin-bottom: 2.5rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-recycle"></i> Dynamic Waste Management</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Dynamic Demand-Driven Collection</h3>
+                    <p class="section-subtitle-text"><strong>“Don’t collect because it is a fixed time. Collect because the bin actually needs it.”</strong> Real-time fill levels determine smart collection routes.</p>
+                </div>
+
+                <!-- Live Interactive Bin Simulator Widget -->
+                <div class="waste-simulator-card" id="wasteSimulatorCard">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                        <div>
+                            <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--text-dark);"><i class="fas fa-microchip" style="color: #0077FC;"></i> Interactive Fill-Level & Priority Dispatch Simulator</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-light);">Simulate bin fill increase or trigger automated AI dispatch routes.</p>
                         </div>
-                        <div class="update-content">
-                            <p>Heavy congestion on Downtown Expressway. Avoid if possible.</p>
-                            <span class="update-time">5 min ago</span>
+                        <button class="btn-primary" id="simulateFillBtn" style="padding: 0.45rem 1rem; font-size: 0.85rem;" onclick="app.simulateBinFillIncrease()">
+                            <i class="fas fa-chart-line"></i> Simulate Urban Fill Spike
+                        </button>
+                    </div>
+
+                    <div class="bins-live-grid" id="binsLiveGrid">
+                        <!-- Bin 1 -->
+                        <div class="bin-telemetry-item" id="binItemB003">
+                            <div class="bin-telemetry-header">
+                                <span class="bin-id-title">🗑️ Bin B003</span>
+                                <span class="road-alert-badge urgent" id="binBadgeB003">97% Urgent</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);"><i class="fas fa-map-pin"></i> High Street Plaza (General)</div>
+                            <div class="fill-bar-track">
+                                <div class="fill-bar-progress urgent" id="binProgressB003" style="width: 97%;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; margin-top: 2px;">
+                                <span>Action: <strong>Instant Dispatch</strong></span>
+                                <span style="color: var(--primary-blue); font-weight: 600;">Truck #04 En Route</span>
+                            </div>
+                        </div>
+
+                        <!-- Bin 2 -->
+                        <div class="bin-telemetry-item" id="binItemB012">
+                            <div class="bin-telemetry-header">
+                                <span class="bin-id-title">🗑️ Bin B012</span>
+                                <span class="road-alert-badge" id="binBadgeB012">88% Collect Soon</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);"><i class="fas fa-map-pin"></i> Market Square (Recyclables)</div>
+                            <div class="fill-bar-track">
+                                <div class="fill-bar-progress urgent" id="binProgressB012" style="width: 88%;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; margin-top: 2px;">
+                                <span>Action: <strong>Queued in Cluster</strong></span>
+                                <span style="color: var(--primary-blue); font-weight: 600;">Truck #12 Assigned</span>
+                            </div>
+                        </div>
+
+                        <!-- Bin 3 -->
+                        <div class="bin-telemetry-item" id="binItemB007">
+                            <div class="bin-telemetry-header">
+                                <span class="bin-id-title">🗑️ Bin B007</span>
+                                <span class="road-alert-badge optimal" id="binBadgeB007">22% Normal</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-light);"><i class="fas fa-map-pin"></i> Greenwood Park (General)</div>
+                            <div class="fill-bar-track">
+                                <div class="fill-bar-progress normal" id="binProgressB007" style="width: 22%;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; margin-top: 2px;">
+                                <span>Action: <strong>Skip Collection</strong></span>
+                                <span style="color: #28A745; font-weight: 600;">Optimal (Saved Trip)</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="update-item">
-                        <div class="update-icon">
-                            <i class="fas fa-check-circle"></i>
+                </div>
+            </section>
+
+            <!-- Section 4: Smart Delivery Management -->
+            <section class="delivery-logistics-section" id="smartDeliverySection" style="margin-bottom: 2.5rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-boxes-packing"></i> Logistics Intelligence</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Smart Delivery & Loading Zone Management</h3>
+                    <p class="section-subtitle-text">Coordinating commercial logistics to reduce duplicate trips and prevent double-parking gridlock.</p>
+                </div>
+
+                <div class="feature-grid-2">
+                    <div class="feature-box">
+                        <div class="feature-box-header">
+                            <div class="feature-icon-box">
+                                <i class="fas fa-diagram-project"></i>
+                            </div>
+                            <div>
+                                <h4>Delivery Trip Clustering</h4>
+                                <span style="font-size: 0.8rem; color: var(--text-light);">Spatial-temporal parcel batching</span>
+                            </div>
                         </div>
-                        <div class="update-content">
-                            <p>Traffic clearing on Northern Bridge. Normal flow expected.</p>
-                            <span class="update-time">12 min ago</span>
+                        <p style="font-size: 0.9rem; color: var(--text-light); line-height: 1.5;">
+                            CityFlow AI clusters nearby orders and schedules delivery batches during non-peak congestion windows, slashing urban delivery miles.
+                        </p>
+                        <div style="margin-top: 1rem; background: var(--background-alt); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>Downtown Corridor Batch:</span>
+                                <strong style="color: var(--primary-blue);">8 Orders Merged</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Road Delays Avoided:</span>
+                                <strong style="color: #28A745;">-24 minutes</strong>
+                            </div>
                         </div>
                     </div>
-                    <div class="update-item">
-                        <div class="update-icon">
-                            <i class="fas fa-info-circle"></i>
+
+                    <div class="feature-box">
+                        <div class="feature-box-header">
+                            <div class="feature-icon-box">
+                                <i class="fas fa-square-parking"></i>
+                            </div>
+                            <div>
+                                <h4>Virtual Loading Zones</h4>
+                                <span style="font-size: 0.8rem; color: var(--text-light);">Dynamic curb & bay reservation</span>
+                            </div>
                         </div>
-                        <div class="update-content">
-                            <p>Roadwork on Central Avenue. Use alternate routes.</p>
-                            <span class="update-time">25 min ago</span>
+                        <p style="font-size: 0.9rem; color: var(--text-light); line-height: 1.5;">
+                            Assigns temporary loading time-slots to delivery vans, preventing commercial double-parking on narrow arterial roads.
+                        </p>
+                        <div style="margin-top: 1rem; background: var(--background-alt); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.82rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>Commercial Row Bay A:</span>
+                                <strong style="color: #28A745;">2 Slots Available</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Reservation Time:</span>
+                                <strong style="color: var(--text-dark);">15 min guaranteed slot</strong>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Section 5: City Resource Management -->
+            <section class="resource-mgmt-section" id="resourceMgmtSection" style="margin-bottom: 2.5rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-cubes-stacked"></i> Municipal Assets</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">City Resource Management Grid</h3>
+                    <p class="section-subtitle-text">CityFlow AI tracks and orchestrates physical municipal and private resources across the urban grid.</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap waste"><i class="fas fa-truck"></i></div>
+                            <span class="kpi-badge" style="background: #E8F5E9; color: #28A745;">24 Total</span>
+                        </div>
+                        <div class="kpi-value">18 Active</div>
+                        <div class="kpi-label">Waste Trucks & Crews</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap delivery"><i class="fas fa-van-shuttle"></i></div>
+                            <span class="kpi-badge" style="background: #E3F2FD; color: #0077FC;">83 Active</span>
+                        </div>
+                        <div class="kpi-value">92 Vans</div>
+                        <div class="kpi-label">Delivery Vehicles</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap waste"><i class="fas fa-trash-arrow-up"></i></div>
+                            <span class="kpi-badge" style="background: #E8F5E9; color: #28A745;">IoT Monitored</span>
+                        </div>
+                        <div class="kpi-value">48 Bins</div>
+                        <div class="kpi-label">Smart Garbage Bins</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap urgent"><i class="fas fa-gas-pump"></i></div>
+                            <span class="kpi-badge" style="background: #FFEBEE; color: #DC3545;">-28% Burn</span>
+                        </div>
+                        <div class="kpi-value">1,420 L</div>
+                        <div class="kpi-label">Fuel Saved Today</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap delivery"><i class="fas fa-id-card-clip"></i></div>
+                            <span class="kpi-badge" style="background: #E3F2FD; color: #0077FC;">Synchronized</span>
+                        </div>
+                        <div class="kpi-value">42 Crews</div>
+                        <div class="kpi-label">Workers & Drivers</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-card-header">
+                            <div class="kpi-icon-wrap traffic"><i class="fas fa-road"></i></div>
+                            <span class="kpi-badge" style="background: #FFF8E1; color: #F57F17;">Dynamic Slots</span>
+                        </div>
+                        <div class="kpi-value">12 Zones</div>
+                        <div class="kpi-label">Loading Zones Active</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: Performance Analytics & Benchmarks Dashboard (D3.js Visualization Engine) -->
+            <section class="analytics-dashboard-section" id="analyticsDashboardSection">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-chart-line"></i> Analytics & Benchmarks</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Urban Operations Performance Analytics</h3>
+                    <p class="section-subtitle-text">Interactive telemetry and impact trends showing verified fuel savings, CO2 emission cuts, waste collection mileage reduction, and delivery latency optimization.</p>
+                </div>
+
+                <div class="analytics-dashboard-container" id="analyticsDashboardContainer">
+                    <div class="analytics-header-row">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--text-dark); font-size: 1rem;">
+                                <i class="fas fa-chart-area" style="color: var(--primary-blue);"></i>
+                                Telemetry Trend Visualizer
+                            </div>
+                            <span class="status-indicator live" style="font-size: 0.75rem; padding: 2px 8px; background: rgba(0, 119, 252, 0.1); color: var(--primary-blue);">
+                                Dynamic Multi-Stream
+                            </span>
+                        </div>
+                        <div class="analytics-timeframe-toggles" id="analyticsTimeframeControls">
+                            <button class="analytics-time-btn" data-timeframe="7d">7 Days</button>
+                            <button class="analytics-time-btn active" data-timeframe="30d">30 Days</button>
+                            <button class="analytics-time-btn" data-timeframe="90d">Quarterly</button>
+                            <button class="analytics-time-btn" data-timeframe="projection">AI Projection</button>
+                        </div>
+                    </div>
+
+                    <div class="analytics-charts-grid">
+                        <!-- Chart 1: Fuel & CO2 Savings -->
+                        <div class="analytics-chart-card">
+                            <div class="analytics-chart-header">
+                                <div>
+                                    <div class="analytics-chart-title">
+                                        <i class="fas fa-gas-pump" style="color: #0077FC;"></i> Fuel & CO₂ Reductions
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 2px;">
+                                        Comparison between baseline consumption vs. CityFlow AI optimized routing
+                                    </div>
+                                </div>
+                                <span class="analytics-chart-badge" style="background: rgba(40, 167, 69, 0.1); color: #28A745;">-28% Fuel</span>
+                            </div>
+                            <div class="analytics-chart-body" id="fuelSavingsChartContainer"></div>
+                        </div>
+
+                        <!-- Chart 2: Waste Route Distance & Overflow Trends -->
+                        <div class="analytics-chart-card">
+                            <div class="analytics-chart-header">
+                                <div>
+                                    <div class="analytics-chart-title">
+                                        <i class="fas fa-trash-arrow-up" style="color: #28A745;"></i> Waste Routing & Overflow Cuts
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 2px;">
+                                        Kilometers driven per cycle vs. critical bin overflow count
+                                    </div>
+                                </div>
+                                <span class="analytics-chart-badge" style="background: rgba(0, 119, 252, 0.1); color: #0077FC;">-31.6% Distance</span>
+                            </div>
+                            <div class="analytics-chart-body" id="wasteTrendChartContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- Sector-wise Operational Gains Progress Bars -->
+                    <div class="analytics-chart-card" style="margin-top: 1rem;">
+                        <div class="analytics-chart-header">
+                            <div>
+                                <div class="analytics-chart-title">
+                                    <i class="fas fa-sliders-h" style="color: #F57F17;"></i> Municipal Efficiency Gains by Sector
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 2px;">
+                                    Realized optimization percentage across municipal departments
+                                </div>
+                            </div>
+                            <span class="analytics-chart-badge" style="background: rgba(245, 127, 23, 0.1); color: #F57F17;">Multi-Agency Validated</span>
+                        </div>
+                        <div id="sectorGainsChartContainer"></div>
+                    </div>
+                </div>
+            </section>
+
+
+
+            <!-- Section 8: Measurable Results (Before vs After) -->
+            <section class="measurable-results-section" id="measurableResultsSection" style="margin-bottom: 2.5rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-trophy"></i> Measurable Impact</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Measurable Results & Benchmarks</h3>
+                    <p class="section-subtitle-text">Validated performance improvements across municipal test zones compared to baseline fixed operations.</p>
+                </div>
+
+                <div class="results-grid">
+                    <!-- Metric 1: Distance -->
+                    <div class="result-card">
+                        <div class="metric-name">Waste Route Distance Driven</div>
+                        <div class="result-comparison-val">
+                            <span class="val-before">120 km</span>
+                            <span class="val-after">82 km</span>
+                        </div>
+                        <span class="result-diff-badge"><i class="fas fa-arrow-down"></i> 31.6% Distance Saved</span>
+                    </div>
+
+                    <!-- Metric 2: Trips -->
+                    <div class="result-card">
+                        <div class="metric-name">Daily Collection Trips</div>
+                        <div class="result-comparison-val">
+                            <span class="val-before">35 trips</span>
+                            <span class="val-after">24 trips</span>
+                        </div>
+                        <span class="result-diff-badge"><i class="fas fa-arrow-down"></i> 32% Trips Eliminated</span>
+                    </div>
+
+                    <!-- Metric 3: Critical Bins -->
+                    <div class="result-card">
+                        <div class="metric-name">Critical Overflowing Bins</div>
+                        <div class="result-comparison-val">
+                            <span class="val-before">19 bins</span>
+                            <span class="val-after">2 bins</span>
+                        </div>
+                        <span class="result-diff-badge"><i class="fas fa-arrow-down"></i> 89.4% Overflow Reduction</span>
+                    </div>
+
+                    <!-- Metric 4: Fuel & CO2 -->
+                    <div class="result-card">
+                        <div class="metric-name">Fleet Fuel & Carbon Emissions</div>
+                        <div class="result-comparison-val">
+                            <span class="val-before">Baseline</span>
+                            <span class="val-after">-28%</span>
+                        </div>
+                        <span class="result-diff-badge"><i class="fas fa-leaf"></i> 3,680 kg CO2 Saved/Mo</span>
+                    </div>
+
+                    <!-- Metric 5: Delivery Delays -->
+                    <div class="result-card">
+                        <div class="metric-name">Delivery Peak-Hour Delays</div>
+                        <div class="result-comparison-val">
+                            <span class="val-before">45 mins</span>
+                            <span class="val-after">26 mins</span>
+                        </div>
+                        <span class="result-diff-badge"><i class="fas fa-arrow-down"></i> 42% Delay Reduction</span>
+                    </div>
+
+                    <!-- Metric 6: Street Cleanliness -->
+                    <div class="result-card">
+                        <div class="metric-name">Public Cleanliness Satisfaction</div>
+                        <div class="result-comparison-val">
+                            <span class="val-before">64%</span>
+                            <span class="val-after">94%</span>
+                        </div>
+                        <span class="result-diff-badge"><i class="fas fa-arrow-up"></i> +30% Citizen Approval</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 9: Impact on Target Stakeholders -->
+            <section class="stakeholders-section" id="stakeholdersSection" style="margin-bottom: 2.5rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-users-gear"></i> Stakeholders</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Impact on City Stakeholders</h3>
+                    <p class="section-subtitle-text">Delivering measurable value to municipal governments, logistics operators, and local citizens.</p>
+                </div>
+
+                <div class="stakeholder-grid">
+                    <div class="stakeholder-card">
+                        <h5><i class="fas fa-building-columns" style="color: var(--primary-blue);"></i> City Municipalities</h5>
+                        <p>Real-time visibility over city operations, reduced infrastructure wear, lower operating budget, and cleaner public spaces.</p>
+                    </div>
+
+                    <div class="stakeholder-card">
+                        <h5><i class="fas fa-truck-fast" style="color: #0056CC;"></i> Delivery Companies</h5>
+                        <p>Optimized cluster routes, predictable loading zone reservations, and fewer peak congestion delay penalties.</p>
+                    </div>
+
+                    <div class="stakeholder-card">
+                        <h5><i class="fas fa-recycle" style="color: #28A745;"></i> Waste Departments</h5>
+                        <p>Demand-driven routing that eliminates wasted trips to half-empty bins and auto-dispatches to overflow hot-spots.</p>
+                    </div>
+
+                    <div class="stakeholder-card">
+                        <h5><i class="fas fa-store" style="color: #F57F17;"></i> Local Businesses</h5>
+                        <p>Dedicated loading bays with zero double-parking fines, cleaner storefronts, and reliable delivery delivery windows.</p>
+                    </div>
+
+                    <div class="stakeholder-card">
+                        <h5><i class="fas fa-people-roof" style="color: #0077FC;"></i> Urban Citizens</h5>
+                        <p>Less traffic congestion on arterial roads, zero overflowing sidewalk trash bins, and cleaner air quality.</p>
+                    </div>
+
+                    <div class="stakeholder-card">
+                        <h5><i class="fas fa-tree" style="color: #28A745;"></i> Environment & Climate</h5>
+                        <p>Substantial reduction in diesel fuel combustion, lowering city-wide greenhouse gas emissions and particulate pollution.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Navigation Module Cards -->
+            <section class="module-shortcuts-section" id="moduleShortcutsSection" style="margin-bottom: 2rem;">
+                <div class="section-heading-block">
+                    <span class="section-tag"><i class="fas fa-folder-open"></i> Operational Consoles</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Dedicated Operations Portals</h3>
+                    <p class="section-subtitle-text">Specialized consoles tailored for municipal crews, logistics drivers, and city controllers.</p>
+                </div>
+
+                <div class="modules-grid" id="modulesGrid">
+                    <a href="/commuters.html" class="module-card" id="moduleWasteConsole">
+                        <div class="module-icon" style="background: rgba(40, 167, 69, 0.1); color: #28A745;">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>Smart Waste Management</h3>
+                            <p>Dynamic fill telemetry, truck route optimization, and urgent bin dispatches.</p>
+                        </div>
+                        <div class="module-action">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/delivery.html" class="module-card" id="moduleLogisticsConsole">
+                        <div class="module-icon" style="background: rgba(0, 119, 252, 0.1); color: var(--primary-blue);">
+                            <i class="fas fa-boxes-packing"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>Smart Delivery Logistics</h3>
+                            <p>Parcel trip clustering, loading zone reservations, and traffic-aware routing.</p>
+                        </div>
+                        <div class="module-action">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/cab-drivers.html" class="module-card" id="moduleResourceConsole">
+                        <div class="module-icon" style="background: rgba(245, 127, 23, 0.1); color: #F57F17;">
+                            <i class="fas fa-traffic-light"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>City Traffic & Resources</h3>
+                            <p>Corridor congestion monitoring, dynamic speed buffers, and fleet allocations.</p>
+                        </div>
+                        <div class="module-action">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/emergency.html" class="module-card" id="moduleEmergencyConsole">
+                        <div class="module-icon" style="background: rgba(220, 53, 69, 0.1); color: #DC3545;">
+                            <i class="fas fa-truck-medical"></i>
+                        </div>
+                        <div class="module-info">
+                            <h3>Emergency Green Corridors</h3>
+                            <p>Signal preemption, hospital routing, and rapid incident clearance.</p>
+                        </div>
+                        <div class="module-action">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
                 </div>
             </section>
         </main>
 
-        <!-- App Navigation -->
-        <nav class="app-nav">
-            <a href="/" class="nav-item active">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
+        <!-- Footer -->
+        <footer class="app-footer" id="appFooter">
+            <div class="footer-inner">
+                <div class="footer-logo">
+                    <i class="fas fa-network-wired" style="color: var(--primary-blue);"></i>
+                    <span>CityFlow <span style="color: var(--primary-blue);">AI</span></span>
+                </div>
+                <p class="footer-text">
+                    An AI-Powered Urban Traffic, Logistics & Smart Waste Management Platform. Designed for modern smart municipalities to coordinate resources, minimize transit friction, and maintain clean streets.
+                </p>
+                <div style="font-size: 0.78rem; color: var(--text-lighter);">
+                    © 2026 CityFlow AI Platform. All rights reserved.
+                </div>
+            </div>
+        </footer>
+
+        <!-- Bottom Navigation Bar (Mobile) -->
+        <nav class="app-nav" id="bottomNav">
+            <a href="/index.html" class="nav-item active">
+                <i class="fas fa-city"></i>
+                <span>CityFlow</span>
             </a>
-            <a href="#" class="nav-item" id="mapNav">
-                <i class="fas fa-map"></i>
-                <span>Map</span>
+            <a href="/commuters.html" class="nav-item">
+                <i class="fas fa-trash-alt"></i>
+                <span>Smart Waste</span>
             </a>
-            <a href="#" class="nav-item" id="tripsNav">
-                <i class="fas fa-route"></i>
-                <span>Trips</span>
+            <a href="/delivery.html" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Logistics</span>
             </a>
-            <a href="#" class="nav-item" id="settingsNav">
-                <i class="fas fa-cog"></i>
-                <span>Settings</span>
+            <a href="/cab-drivers.html" class="nav-item">
+                <i class="fas fa-traffic-light"></i>
+                <span>Traffic</span>
             </a>
         </nav>
-
-        <!-- Install Prompt -->
-        <div class="install-prompt" id="installPrompt">
-            <div class="prompt-content">
-                <i class="fas fa-download"></i>
-                <div class="prompt-text">
-                    <h4>Install Smart Roads App</h4>
-                    <p>Get full-screen experience and offline access</p>
-                </div>
-                <button class="btn-primary" id="installBtn">Install</button>
-                <button class="btn-text" id="dismissInstall">Not Now</button>
-            </div>
-        </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="/assets/js/app.js"></script>
-    <script src="/assets/js/service-worker.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Initialize App -->
+    <!-- D3.js for Data Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <!-- Application Scripts -->
+    <script src="/maps.js"></script>
+    <script src="/analytics.js"></script>
+    <script src="/app.js"></script>
+    <script src="/realtime.js"></script>
+
+    <!-- Real-time Telemetry, TomTom & Analytics Integration Scripts -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registered');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize CityFlow Leaflet Map
+            if (window.CityFlowMap && document.getElementById('cityflowMap')) {
+                window.cityFlowMap = new CityFlowMap('cityflowMap');
+            }
+
+            // Initialize D3.js Analytics Dashboard
+            if (window.CityFlowAnalytics && document.getElementById('analyticsDashboardContainer')) {
+                window.cityFlowAnalytics = new CityFlowAnalytics('analyticsDashboardContainer');
+            }
+
+            // Fetch Live Weather & Road Impact
+            fetchLiveWeather();
+
+            // Check TomTom API status
+            fetchTomTomStatus();
+
+            // Connect Live Stream (SSE & WebSocket)
+            initLiveTelemetryStream();
+        });
+
+        async function fetchTomTomStatus() {
+            try {
+                const res = await fetch('/api/tomtom/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    const pill = document.getElementById('tomtomStatusPill');
+                    const meta = document.getElementById('tomtomStatusMeta');
+                    if (pill) {
+                        pill.textContent = data.configured ? 'TomTom Live Connected' : 'Traffic Mesh Active';
+                        pill.className = `api-pill ${data.configured ? 'connected' : 'active'}`;
+                    }
+                    if (meta && data.features) {
+                        meta.textContent = `TomTom engine active: ${data.features.slice(0, 3).join(', ')}.`;
+                    }
+                }
+            } catch (e) {
+                console.log('TomTom status query:', e);
+            }
+        }
+
+        function initLiveTelemetryStream() {
+            // Try Server-Sent Events (SSE) for continuous live streaming
+            if (typeof EventSource !== 'undefined') {
+                const eventSource = new EventSource('/api/cityflow/live-stream');
+                eventSource.onmessage = (event) => {
+                    try {
+                        const parsed = JSON.parse(event.data);
+                        if (parsed.data) {
+                            handleTelemetryPayload(parsed.data);
+                        }
+                    } catch (e) {
+                        console.log('Error parsing SSE:', e);
+                    }
+                };
+                eventSource.onerror = () => {
+                    eventSource.close();
+                    // Fallback to polling
+                    setInterval(pollLiveStatus, 4000);
+                };
+            } else {
+                setInterval(pollLiveStatus, 4000);
+            }
+        }
+
+        async function pollLiveStatus() {
+            try {
+                const res = await fetch('/api/cityflow/status');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.data) {
+                        handleTelemetryPayload(json.data);
+                    }
+                }
+            } catch (err) {
+                console.log('Polling error:', err);
+            }
+        }
+
+        function handleTelemetryPayload(state) {
+            // Update Traffic KPIs
+            const trafficCard = document.getElementById('kpiCardTraffic');
+            if (trafficCard && state.traffic) {
+                const valEl = trafficCard.querySelector('.kpi-value');
+                const badgeEl = trafficCard.querySelector('.kpi-badge');
+                if (valEl) {
+                    valEl.textContent = state.traffic.congestionIndex > 70 ? 'HIGH' : (state.traffic.congestionIndex > 40 ? 'MODERATE' : 'OPTIMAL');
+                    valEl.style.color = state.traffic.congestionIndex > 70 ? '#DC3545' : (state.traffic.congestionIndex > 40 ? '#F57F17' : '#28A745');
+                }
+                if (badgeEl) {
+                    badgeEl.textContent = `${state.traffic.congestionIndex}% Congestion`;
+                    badgeEl.style.color = state.traffic.congestionIndex > 70 ? '#DC3545' : '#F57F17';
+                }
+            }
+
+            // Update Map live markers if initialized
+            if (window.cityFlowMap && window.cityFlowMap.updateLiveData) {
+                window.cityFlowMap.updateLiveData(state);
+            }
+        }
+
+        async function fetchLiveWeather() {
+            try {
+                const res = await fetch('/api/cityflow/weather');
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    const tempEl = document.getElementById('weatherTemp');
+                    const condEl = document.getElementById('weatherCondition');
+                    const iconEl = document.getElementById('weatherIcon');
+                    const humidEl = document.getElementById('weatherHumidityVal');
+                    const windEl = document.getElementById('weatherWindVal');
+                    const sensEl = document.getElementById('weatherSensVal');
+                    const alertBadge = document.getElementById('roadAlertBadge');
+                    const alertDesc = document.getElementById('roadAlertDescription');
+                    const sourceBadge = document.getElementById('weatherSourceBadge');
+
+                    if (tempEl) tempEl.textContent = `${data.temperature}°C`;
+                    if (condEl) condEl.textContent = data.condition;
+                    if (iconEl && data.icon) iconEl.className = `fas ${data.icon}`;
+                    if (humidEl) humidEl.textContent = `${data.humidity}%`;
+                    if (windEl) windEl.textContent = `${data.windSpeed} km/h`;
+                    if (sensEl) sensEl.textContent = `${data.apparentTemp}°C`;
+                    if (sourceBadge) sourceBadge.innerHTML = `<i class="fas fa-satellite"></i> ${data.source}`;
+                    
+                    if (alertBadge) {
+                        alertBadge.textContent = data.roadImpact;
+                        alertBadge.className = `road-alert-badge ${data.impactSeverity || 'optimal'}`;
+                    }
+                    if (alertDesc) alertDesc.textContent = data.impactDetails;
+                }
+            } catch (e) {
+                console.log('Weather update error:', e);
+            }
         }
     </script>
 </body>

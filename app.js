@@ -25,6 +25,52 @@ class SmartRoadsApp {
         this.showInstallPrompt();
     }
 
+    simulateBinFillIncrease() {
+        const binB003 = document.getElementById('binProgressB003');
+        const binBadgeB003 = document.getElementById('binBadgeB003');
+        const binB012 = document.getElementById('binProgressB012');
+        const binBadgeB012 = document.getElementById('binBadgeB012');
+        const binB007 = document.getElementById('binProgressB007');
+        const binBadgeB007 = document.getElementById('binBadgeB007');
+
+        if (binB007) {
+            binB007.style.width = '89%';
+            binB007.className = 'fill-bar-progress urgent';
+            if (binBadgeB007) {
+                binBadgeB007.textContent = '89% Collect Soon';
+                binBadgeB007.className = 'road-alert-badge';
+            }
+        }
+
+        if (binB012) {
+            binB012.style.width = '96%';
+            binB012.className = 'fill-bar-progress urgent';
+            if (binBadgeB012) {
+                binBadgeB012.textContent = '96% Urgent';
+                binBadgeB012.className = 'road-alert-badge urgent';
+            }
+        }
+
+        this.showModal('Urban Telemetry Simulation', `
+            <div style="font-size: 14px; line-height: 1.5; padding: 4px 0;">
+                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                    <i class="fas fa-satellite-dish" style="font-size: 28px; color: #0077FC;"></i>
+                    <div>
+                        <strong style="font-size: 15px;">Simulated Peak Footfall Inflow</strong>
+                        <div style="font-size: 12px; color: #666;">Greenwood Park & Market Square bins increased past threshold.</div>
+                    </div>
+                </div>
+                <div style="background: #F8F9FA; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 13px;">
+                    <strong style="color: #DC3545;"><i class="fas fa-bell"></i> AI Trigger Fired:</strong><br>
+                    Greenwood Park Bin B007 jumped to 89%. CityFlow Decision Engine automatically queued Truck #15 from standby for optimized route addition.
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="if(window.cityFlowMap) window.cityFlowMap.triggerGlobalOptimization(); document.querySelector('.modal-overlay')?.remove();">
+                    <i class="fas fa-route"></i> Calculate & View Optimal Fleet Routes
+                </button>
+            </div>
+        `);
+    }
+
     checkPWAInstall() {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -234,17 +280,21 @@ class SmartRoadsApp {
 
     showNotifications() {
         const notifications = [
-            { id: 1, text: "Your trip to Downtown starts in 30 minutes", time: "10 min ago", read: false },
-            { id: 2, text: "Traffic alert: Heavy congestion on your route", time: "25 min ago", read: true },
-            { id: 3, text: "Delivery #DRV-4567 has been completed", time: "1 hour ago", read: true }
+            { id: 1, title: "URGENT WASTE ALERT", text: "Bin B003 (High Street Plaza) has reached 97% capacity. Truck #04 auto-dispatched.", time: "2 min ago", type: "urgent", read: false },
+            { id: 2, title: "TRAFFIC CONGESTION ALERT", text: "Zone A Downtown Corridor congestion index rose to 68%. Heavy truck routes re-routed.", time: "6 min ago", type: "traffic", read: false },
+            { id: 3, title: "LOGISTICS CLUSTERING", text: "Optimal delivery window for Market Street shifted to avoid peak congestion.", time: "14 min ago", type: "logistics", read: true },
+            { id: 4, title: "RESOURCE OPTIMIZATION", text: "Standby waste truck #15 brought online for North sector surge collection.", time: "25 min ago", type: "resource", read: true }
         ];
 
-        this.showModal('Notifications', `
+        this.showModal('CityFlow AI Operations Alerts Stream', `
             <div class="notifications-list">
                 ${notifications.map(notif => `
                     <div class="notification-item ${notif.read ? 'read' : 'unread'}">
                         <div class="notification-content">
-                            <p>${notif.text}</p>
+                            <div style="font-size: 11px; font-weight: 700; color: ${notif.type === 'urgent' ? '#DC3545' : (notif.type === 'traffic' ? '#F57F17' : '#0077FC')}; margin-bottom: 2px;">
+                                ${notif.title}
+                            </div>
+                            <p style="font-size: 13px; margin-bottom: 4px;">${notif.text}</p>
                             <span class="notification-time">${notif.time}</span>
                         </div>
                         ${!notif.read ? '<span class="unread-dot"></span>' : ''}
@@ -254,7 +304,7 @@ class SmartRoadsApp {
             <style>
                 .notifications-list { max-height: 400px; overflow-y: auto; }
                 .notification-item {
-                    padding: 1rem;
+                    padding: 0.85rem 1rem;
                     border-bottom: 1px solid var(--border);
                     display: flex;
                     justify-content: space-between;
@@ -262,13 +312,14 @@ class SmartRoadsApp {
                 }
                 .notification-item:last-child { border-bottom: none; }
                 .notification-item.unread { background: rgba(0, 119, 252, 0.05); }
-                .notification-content p { margin-bottom: 0.25rem; }
-                .notification-time { font-size: 0.8rem; color: var(--text-lighter); }
+                .notification-content p { margin-bottom: 0.25rem; color: var(--text-dark); }
+                .notification-time { font-size: 0.75rem; color: var(--text-lighter); }
                 .unread-dot {
                     width: 8px;
                     height: 8px;
                     background: var(--primary-blue);
                     border-radius: 50%;
+                    flex-shrink: 0;
                 }
             </style>
         `);

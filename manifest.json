@@ -1,7 +1,7 @@
 {
-  "name": "Smart Roads",
-  "short_name": "SmartRoads",
-  "description": "Intelligent traffic solutions and route optimization platform",
+  "name": "CityFlow AI",
+  "short_name": "CityFlow",
+  "description": "AI-Powered Urban Traffic, Logistics & Smart Waste Management Platform",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",
