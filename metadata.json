@@ -1,0 +1,6 @@
+{
+  "name": "Smart Roads",
+  "description": "Real-time traffic intelligence, route optimization, and smart transportation platform for commuters, delivery drivers, cab drivers, and emergency services.",
+  "requestFramePermissions": ["geolocation", "notifications"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

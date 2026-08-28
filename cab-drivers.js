@@ -1692,9 +1692,14 @@ class CabDriversModule {
             if (navScreen) {
                 const pickupDiv = navScreen.querySelector('.nav-info > div:first-child');
                 if (pickupDiv) {
-                    pickupDiv.querySelector('div:first-child').textContent = 'Current location';
-                    pickupDiv.querySelector('div:last-child').textContent = 'En route to destination';
-                    pickupDiv.querySelector('.fa-map-marker-alt').parentElement.style.background = 'var(--warning)';
+                    const firstChild = pickupDiv.querySelector('div:first-child');
+                    if (firstChild) firstChild.textContent = 'Current location';
+                    const lastChild = pickupDiv.querySelector('div:last-child');
+                    if (lastChild) lastChild.textContent = 'En route to destination';
+                    const markerIcon = pickupDiv.querySelector('.fa-map-marker-alt');
+                    if (markerIcon && markerIcon.parentElement) {
+                        markerIcon.parentElement.style.background = 'var(--warning)';
+                    }
                 }
                 
                 const actionBtn = navScreen.querySelector('.nav-actions .btn-primary');

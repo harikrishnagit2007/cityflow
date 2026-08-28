@@ -1,0 +1,16 @@
+{
+  "name": "smart-roads",
+  "version": "1.0.0",
+  "description": "Smart Roads - Intelligent Transportation Platform",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build successful')\"",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  }
+}

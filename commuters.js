@@ -132,7 +132,8 @@ class CommutersModule {
 
         // Modal close
         document.querySelector('.modal-close')?.addEventListener('click', () => {
-            document.getElementById('groupModal').style.display = 'none';
+            const modal = document.getElementById('groupModal');
+            if (modal) modal.style.display = 'none';
         });
     }
 
@@ -703,10 +704,16 @@ class CommutersModule {
         
         const card = document.querySelector('.prediction-card');
         if (card) {
-            card.querySelector('.prediction-value:nth-child(1)').textContent = prediction.bestTime;
-            card.querySelector('.prediction-value:nth-child(2)').textContent = prediction.delay;
-            card.querySelector('.prediction-value:nth-child(3)').textContent = prediction.route;
-            card.querySelector('.prediction-advice p').textContent = prediction.advice;
+            const values = card.querySelectorAll('.prediction-value');
+            if (values.length >= 3) {
+                values[0].textContent = prediction.bestTime;
+                values[1].textContent = prediction.delay;
+                values[2].textContent = prediction.route;
+            }
+            const adviceEl = card.querySelector('.prediction-advice p');
+            if (adviceEl) {
+                adviceEl.textContent = prediction.advice;
+            }
         }
     }
 

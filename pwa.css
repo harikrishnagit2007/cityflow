@@ -1,0 +1,159 @@
+/* PWA and Mobile-Enhancement Styles for Smart Roads */
+
+:root {
+  --pwa-safe-area-top: env(safe-area-inset-top, 0px);
+  --pwa-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .app-header {
+    padding-top: var(--pwa-safe-area-top);
+    height: calc(60px + var(--pwa-safe-area-top));
+  }
+  .app-nav {
+    padding-bottom: var(--pwa-safe-area-bottom);
+    height: calc(60px + var(--pwa-safe-area-bottom));
+  }
+}
+
+/* Offline Indicator */
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ffc107;
+  color: #231f20;
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10000;
+  display: none;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.offline-indicator.show {
+  display: block;
+  transform: translateY(0);
+}
+
+/* Install Prompt Banner */
+.install-prompt {
+  display: none;
+  position: fixed;
+  bottom: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 440px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  z-index: 9990;
+  animation: slideUp 0.3s ease-out;
+}
+
+.prompt-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prompt-content > i {
+  font-size: 24px;
+  color: #0077fc;
+  flex-shrink: 0;
+}
+
+.prompt-text {
+  flex: 1;
+}
+
+.prompt-text h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: #231f20;
+}
+
+.prompt-text p {
+  font-size: 12px;
+  color: #666666;
+  margin: 0;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* Touch feedback ripple */
+.touch-feedback {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+/* Standalone navigation adjustment */
+.standalone-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: inherit;
+  text-decoration: none;
+  margin-right: 8px;
+  transition: background 0.2s ease;
+}
+
+.standalone-back:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* Map Containers */
+.map-container {
+  width: 100%;
+  height: 320px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+  margin: 12px 0;
+  z-index: 1;
+}
+
+/* Map Legend */
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #666666;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}

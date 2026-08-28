@@ -64,7 +64,8 @@ class SmartRoadsApp {
         
         if (dismissBtn) {
             dismissBtn.addEventListener('click', () => {
-                document.getElementById('installPrompt').style.display = 'none';
+                const prompt = document.getElementById('installPrompt');
+                if (prompt) prompt.style.display = 'none';
             });
         }
 
@@ -118,7 +119,8 @@ class SmartRoadsApp {
             }
             
             this.deferredPrompt = null;
-            document.getElementById('installPrompt').style.display = 'none';
+            const prompt = document.getElementById('installPrompt');
+            if (prompt) prompt.style.display = 'none';
         } catch (error) {
             console.error('Install error:', error);
         }

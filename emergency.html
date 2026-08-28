@@ -288,11 +288,14 @@
             });
             
             // Navigation
-            document.querySelectorAll('.nav-item:not(.active)').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    window.app.showComingSoon();
-                });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const href = item.getAttribute('href');
+                if (!href || href === '#') {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.app.showComingSoon();
+                    });
+                }
             });
             
             // Menu items
