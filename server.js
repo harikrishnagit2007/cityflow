@@ -448,57 +448,6 @@ app.post('/api/cityflow/optimize-waste', (req, res) => {
   });
 });
 
-// Analytics Dashboard Telemetry Endpoint for D3.js / Recharts
-app.get('/api/cityflow/analytics', (req, res) => {
-  const timeframe = req.query.timeframe || '30d';
-
-  const analyticsPayload = {
-    summary: {
-      totalFuelSavedLiters: 1420,
-      totalCo2ReducedKg: 3680,
-      distanceReductionPercent: 31.6,
-      tripsEliminatedPercent: 32.0,
-      overflowReductionPercent: 89.4,
-      deliveryDelayReductionPercent: 42.0,
-      citizenApprovalPercent: 94.0
-    },
-    // Daily Fuel & Carbon Savings Time Series
-    fuelTrend: [
-      { day: 'Day 1', baselineFuel: 190, actualFuel: 135, fuelSaved: 55, co2SavedKg: 143 },
-      { day: 'Day 5', baselineFuel: 195, actualFuel: 132, fuelSaved: 63, co2SavedKg: 164 },
-      { day: 'Day 10', baselineFuel: 185, actualFuel: 124, fuelSaved: 61, co2SavedKg: 158 },
-      { day: 'Day 15', baselineFuel: 205, actualFuel: 138, fuelSaved: 67, co2SavedKg: 174 },
-      { day: 'Day 20', baselineFuel: 200, actualFuel: 129, fuelSaved: 71, co2SavedKg: 184 },
-      { day: 'Day 25', baselineFuel: 210, actualFuel: 134, fuelSaved: 76, co2SavedKg: 198 },
-      { day: 'Day 30', baselineFuel: 205, actualFuel: 126, fuelSaved: 79, co2SavedKg: 205 }
-    ],
-    // Waste Collection Route Distance & Critical Bin Trends
-    wasteTrend: [
-      { period: 'Week 1', routeKm: 118, targetKm: 85, criticalOverflowBins: 19, collectedBins: 48 },
-      { period: 'Week 2', routeKm: 104, targetKm: 85, criticalOverflowBins: 12, collectedBins: 52 },
-      { period: 'Week 3', routeKm: 92, targetKm: 85, criticalOverflowBins: 6, collectedBins: 50 },
-      { period: 'Week 4', routeKm: 82, targetKm: 85, criticalOverflowBins: 2, collectedBins: 54 }
-    ],
-    // Delivery Logistics Peak Delays & Loading Bay Utilization
-    deliveryTrend: [
-      { zone: 'Downtown', baselineDelayMin: 45, aiOptimizedDelayMin: 26, bayOccupancy: 88 },
-      { zone: 'Market Strip', baselineDelayMin: 38, aiOptimizedDelayMin: 22, bayOccupancy: 94 },
-      { zone: 'North Bridge', baselineDelayMin: 32, aiOptimizedDelayMin: 18, bayOccupancy: 76 },
-      { zone: 'Tech Park', baselineDelayMin: 28, aiOptimizedDelayMin: 15, bayOccupancy: 65 }
-    ],
-    // Sector-wise Resource Efficiency Gain
-    sectorGains: [
-      { sector: 'Smart Waste Routing', efficiencyGain: 31.6, color: '#28A745' },
-      { sector: 'Parcel Trip Clustering', efficiencyGain: 28.5, color: '#0077FC' },
-      { sector: 'Traffic Signal Preemption', efficiencyGain: 42.0, color: '#F57F17' },
-      { sector: 'Loading Bay Reservation', efficiencyGain: 34.2, color: '#6F42C1' }
-    ],
-    timestamp: Date.now()
-  };
-
-  res.json({ success: true, timeframe, data: analyticsPayload });
-});
-
 app.post('/api/cityflow/dispatch-truck', (req, res) => {
   const { binId } = req.body;
   const bin = cityFlowState.waste.bins.find(b => b.id === binId);

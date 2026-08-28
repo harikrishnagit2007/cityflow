@@ -2,43 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CityFlow AI - Smart Urban Traffic, Logistics & Waste Management Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CityFlow AI - AI-Powered Urban Traffic, Logistics & Smart Waste Management</title>
     <meta name="theme-color" content="#0077FC">
-    <meta name="description" content="CityFlow AI is a comprehensive enterprise smart city operations platform that coordinates urban traffic flow, freight logistics, waste collection routing, and municipal assets in real time.">
-    <meta name="keywords" content="smart city, urban traffic management, waste route optimization, fleet logistics, TomTom traffic API, municipal operations, green corridor, emission reduction, IoT telemetry">
-    <meta name="author" content="CityFlow AI Technologies">
-    <meta name="robots" content="index, follow">
-
-    <!-- Open Graph / Facebook / LinkedIn -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://cityflow.ai/">
-    <meta property="og:title" content="CityFlow AI - Smart Urban Traffic, Logistics & Waste Platform">
-    <meta property="og:description" content="AI-driven urban resource coordination, dynamic route optimization, and live municipal telemetry for modern sustainable cities.">
-    <meta property="og:image" content="/IMG_7383.PNG">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="CityFlow AI - Smart Urban Operations">
-    <meta name="twitter:description" content="Real-time traffic flow intelligence, smart waste collection dispatch, and commercial freight logistics optimization.">
-    <meta name="twitter:image" content="/IMG_7383.PNG">
-
-    <!-- Structured Data (JSON-LD) for Search Engines -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "CityFlow AI",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web, Cloud",
-      "description": "Smart Urban Traffic, Logistics & Waste Management Platform utilizing AI-driven route optimization and real-time municipal telemetry.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0.00",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
+    <meta name="description" content="CityFlow AI - Intelligently coordinates urban traffic, delivery logistics, waste collection, and city resources using real-time data and AI-driven optimization.">
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
@@ -71,7 +38,7 @@
             </div>
             <div class="install-text">
                 <h3>Install CityFlow AI</h3>
-                <p>Add CityFlow AI to your desktop or device for smart city operations.</p>
+                <p>Add CityFlow AI to your home screen for real-time smart city operations.</p>
             </div>
             <div class="install-actions">
                 <button id="dismissInstall" class="btn-text">Later</button>
@@ -80,40 +47,32 @@
         </div>
     </div>
 
-    <!-- Main Application Container (Full-Screen Desktop Portal Layout) -->
+    <!-- Main Application Container -->
     <div class="app-container">
-        <!-- App Header (Desktop Navigation Bar) -->
+        <!-- App Header -->
         <header class="app-header" id="mainHeader">
             <div class="header-content">
                 <div class="logo-section">
-                    <a href="/index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
-                        <div class="logo-icon" style="background: linear-gradient(135deg, #0077FC, #0056CC); color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px;">
-                            <i class="fas fa-network-wired"></i>
-                        </div>
-                        <div class="logo-text">
-                            <h1 style="font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text-dark); margin: 0;">CityFlow <span style="color: var(--primary-blue);">AI</span></h1>
-                            <p style="font-size: 0.75rem; color: var(--text-light); margin: 0;">Enterprise Smart City Portal</p>
-                        </div>
-                    </a>
+                    <div class="logo-icon" style="background: linear-gradient(135deg, #0077FC, #0056CC); color: white; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px;">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1 style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;">CityFlow <span style="color: var(--primary-blue);">AI</span></h1>
+                        <p style="font-size: 0.75rem; color: var(--text-light);">Smart Urban Operations Platform</p>
+                    </div>
                 </div>
-
-                <!-- Desktop Navigation Menu Links -->
-                <nav class="desktop-nav-links" id="desktopNavLinks">
-                    <a href="#heroSection" class="desktop-nav-link active">Overview</a>
-                    <a href="#operationsMapSection" class="desktop-nav-link">Operations Map</a>
-                    <a href="#analyticsDashboardSection" class="desktop-nav-link">Analytics</a>
-                    <a href="/commuters.html" class="desktop-nav-link">Smart Waste</a>
-                    <a href="/delivery.html" class="desktop-nav-link">Logistics</a>
-                    <a href="/cab-drivers.html" class="desktop-nav-link">Traffic Control</a>
-                    <a href="/emergency.html" class="desktop-nav-link">Emergency</a>
-                </nav>
-
                 <div class="header-actions">
-                    <div class="status-indicator live" style="display: flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(40, 167, 69, 0.1); border-radius: 14px; font-size: 0.8rem; font-weight: 600; color: #28A745;">
+                    <div class="header-clock-strip" id="headerClockStrip" title="Current Real-Time Clock">
+                        <i class="far fa-clock" style="color: var(--primary-blue);"></i>
+                        <span id="headerLiveTime" style="font-weight: 700;">--:--:--</span>
+                        <span style="color: var(--border);">|</span>
+                        <span id="headerLiveDate" style="color: var(--text-light);">-- --- ----</span>
+                    </div>
+                    <div class="status-indicator live" style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(40, 167, 69, 0.1); border-radius: 12px; font-size: 0.75rem; font-weight: 600; color: #28A745;">
                         <span class="status-dot online" style="width: 8px; height: 8px; background: #28A745; border-radius: 50%;"></span>
                         <span id="headerStatusText">Live Connected</span>
                     </div>
-                    <button class="icon-btn" id="notificationBtn" title="Alerts Stream">
+                    <button class="icon-btn" id="notificationBtn" title="Alerts Stream" style="margin-left: 0.5rem;">
                         <i class="fas fa-bell"></i>
                         <span class="notification-badge" style="background: #DC3545; color: white; font-size: 0.65rem; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; position: absolute; top: 4px; right: 4px;">4</span>
                     </button>
@@ -130,8 +89,8 @@
                 <div class="hero-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; margin-bottom: 0.75rem; color: #FFFFFF;">
                     <i class="fas fa-bolt"></i> AI-Powered Traffic, Logistics & Smart Waste Platform
                 </div>
-                <h2 style="font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.75rem;">Smarter Cities.<br>Better Routes. Cleaner Streets.</h2>
-                <p class="hero-subtitle" style="font-size: 1rem; opacity: 0.95; line-height: 1.5; max-width: 680px;">
+                <h2 style="font-size: 1.85rem; font-weight: 800; line-height: 1.25; margin-bottom: 0.75rem;">Smarter Cities.<br>Better Routes. Cleaner Streets.</h2>
+                <p class="hero-subtitle" style="font-size: 0.95rem; opacity: 0.95; line-height: 1.5; max-width: 680px;">
                     CityFlow AI intelligently coordinates urban traffic, delivery logistics, waste collection, and city resources using real-time telemetry, predictive AI, and dynamic route optimization.
                 </p>
 
@@ -140,8 +99,8 @@
                     <a href="#operationsMapSection" class="btn-white-hero" id="ctaExploreDashboard">
                         <i class="fas fa-map-marked-alt"></i> Explore Live Operations Map
                     </a>
-                    <a href="#analyticsDashboardSection" class="btn-secondary-hero" id="ctaAnalyticsDashboard">
-                        <i class="fas fa-chart-line"></i> Performance Analytics
+                    <a href="#liveSessionSection" class="btn-secondary-hero" id="ctaLiveStream">
+                        <i class="fas fa-satellite-dish"></i> Live Real-Time Stream
                     </a>
                     <button class="btn-secondary-hero" id="optimizeWasteHeroBtn" onclick="if(window.cityFlowMap) window.cityFlowMap.triggerGlobalOptimization();">
                         <i class="fas fa-magic"></i> AI Route Optimization
@@ -543,81 +502,115 @@
                 </div>
             </section>
 
-            <!-- Section 6: Performance Analytics & Benchmarks Dashboard (D3.js Visualization Engine) -->
-            <section class="analytics-dashboard-section" id="analyticsDashboardSection">
+            <!-- Section 6: Live / Real-Time Session Section -->
+            <section class="live-session-section" id="liveSessionSection">
                 <div class="section-heading-block">
-                    <span class="section-tag"><i class="fas fa-chart-line"></i> Analytics & Benchmarks</span>
-                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Urban Operations Performance Analytics</h3>
-                    <p class="section-subtitle-text">Interactive telemetry and impact trends showing verified fuel savings, CO2 emission cuts, waste collection mileage reduction, and delivery latency optimization.</p>
+                    <span class="section-tag"><i class="fas fa-satellite-dish"></i> Live Session</span>
+                    <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-dark);">Live Operations & Real-Time Telemetry</h3>
+                    <p class="section-subtitle-text">Continuous sub-second telemetry synchronization between municipal sensors, TomTom traffic flow, and AI dispatch nodes.</p>
                 </div>
 
-                <div class="analytics-dashboard-container" id="analyticsDashboardContainer">
-                    <div class="analytics-header-row">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--text-dark); font-size: 1rem;">
-                                <i class="fas fa-chart-area" style="color: var(--primary-blue);"></i>
-                                Telemetry Trend Visualizer
+                <div class="live-session-container">
+                    <!-- Live Header Banner -->
+                    <div class="live-session-header">
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <div class="live-session-status-badge">
+                                <span class="live-pulse-dot"></span>
+                                <span id="sessionLiveStatus">LIVE STREAM ACTIVE</span>
                             </div>
-                            <span class="status-indicator live" style="font-size: 0.75rem; padding: 2px 8px; background: rgba(0, 119, 252, 0.1); color: var(--primary-blue);">
-                                Dynamic Multi-Stream
-                            </span>
+                            <div style="font-size: 0.85rem; color: #E2E8F0;">
+                                <i class="fas fa-history" style="color: #63B3ED; margin-right: 4px;"></i>
+                                Last Updated: <strong id="sessionLastUpdated" style="color: #FFFFFF;">Just now</strong>
+                            </div>
                         </div>
-                        <div class="analytics-timeframe-toggles" id="analyticsTimeframeControls">
-                            <button class="analytics-time-btn" data-timeframe="7d">7 Days</button>
-                            <button class="analytics-time-btn active" data-timeframe="30d">30 Days</button>
-                            <button class="analytics-time-btn" data-timeframe="90d">Quarterly</button>
-                            <button class="analytics-time-btn" data-timeframe="projection">AI Projection</button>
+                        <div class="live-time-display-box">
+                            <div class="live-clock-large" id="sessionCurrentTime">--:--:-- --</div>
+                            <div class="live-date-large" id="sessionCurrentDate">--------- --, ----</div>
                         </div>
                     </div>
 
-                    <div class="analytics-charts-grid">
-                        <!-- Chart 1: Fuel & CO2 Savings -->
-                        <div class="analytics-chart-card">
-                            <div class="analytics-chart-header">
-                                <div>
-                                    <div class="analytics-chart-title">
-                                        <i class="fas fa-gas-pump" style="color: #0077FC;"></i> Fuel & CO₂ Reductions
-                                    </div>
-                                    <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 2px;">
-                                        Comparison between baseline consumption vs. CityFlow AI optimized routing
-                                    </div>
+                    <!-- Live Session Body with API Connection Status & Live Ticker -->
+                    <div class="live-session-body">
+                        <!-- API Connection Status Cards -->
+                        <div class="api-status-grid">
+                            <!-- API 1: TomTom Traffic & Routing -->
+                            <div class="api-status-card">
+                                <div class="api-status-header">
+                                    <span class="api-name"><i class="fas fa-route" style="color: #0077FC;"></i> TomTom Traffic API</span>
+                                    <span class="api-pill connected" id="tomtomStatusPill">Live Connected</span>
                                 </div>
-                                <span class="analytics-chart-badge" style="background: rgba(40, 167, 69, 0.1); color: #28A745;">-28% Fuel</span>
+                                <div class="api-status-meta" id="tomtomStatusMeta">
+                                    Real-time speed flow, corridor congestion indices, and dynamic truck route matrices.
+                                </div>
                             </div>
-                            <div class="analytics-chart-body" id="fuelSavingsChartContainer"></div>
+
+                            <!-- API 2: Open-Meteo Weather API -->
+                            <div class="api-status-card">
+                                <div class="api-status-header">
+                                    <span class="api-name"><i class="fas fa-cloud-sun" style="color: #F57F17;"></i> Open-Meteo Weather</span>
+                                    <span class="api-pill connected" id="weatherStatusPill">Hourly Synced</span>
+                                </div>
+                                <div class="api-status-meta" id="weatherStatusMeta">
+                                    Live rain precipitation, visibility meters, and traction safety advisory telemetry.
+                                </div>
+                            </div>
+
+                            <!-- API 3: CityFlow WebSocket & SSE Mesh -->
+                            <div class="api-status-card">
+                                <div class="api-status-header">
+                                    <span class="api-name"><i class="fas fa-network-wired" style="color: #28A745;"></i> Real-Time Data Mesh</span>
+                                    <span class="api-pill connected" id="meshStatusPill">WebSocket / SSE</span>
+                                </div>
+                                <div class="api-status-meta">
+                                    Sub-second push events, dynamic fleet coordinates, and automated bin dispatch triggers.
+                                </div>
+                            </div>
+
+                            <!-- API 4: IoT Smart Sensor Hub -->
+                            <div class="api-status-card">
+                                <div class="api-status-header">
+                                    <span class="api-name"><i class="fas fa-trash-alt" style="color: #6F42C1;"></i> IoT Telemetry Hub</span>
+                                    <span class="api-pill active">48 Nodes Active</span>
+                                </div>
+                                <div class="api-status-meta">
+                                    Ultrasonic fill sensors, GPS transponders, and curbside loading bay optical sensors.
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Chart 2: Waste Route Distance & Overflow Trends -->
-                        <div class="analytics-chart-card">
-                            <div class="analytics-chart-header">
-                                <div>
-                                    <div class="analytics-chart-title">
-                                        <i class="fas fa-trash-arrow-up" style="color: #28A745;"></i> Waste Routing & Overflow Cuts
-                                    </div>
-                                    <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 2px;">
-                                        Kilometers driven per cycle vs. critical bin overflow count
-                                    </div>
+                        <!-- Real-Time Live Event Stream / Ticker -->
+                        <div class="live-ticker-container">
+                            <div class="live-ticker-header">
+                                <div class="live-ticker-title">
+                                    <i class="fas fa-stream" style="color: var(--primary-blue);"></i>
+                                    <span>Real-Time Traffic, Waste & Logistics Updates</span>
                                 </div>
-                                <span class="analytics-chart-badge" style="background: rgba(0, 119, 252, 0.1); color: #0077FC;">-31.6% Distance</span>
+                                <span style="font-size: 0.75rem; color: var(--text-light); font-weight: 600;">Auto-Streaming</span>
                             </div>
-                            <div class="analytics-chart-body" id="wasteTrendChartContainer"></div>
-                        </div>
-                    </div>
-
-                    <!-- Sector-wise Operational Gains Progress Bars -->
-                    <div class="analytics-chart-card" style="margin-top: 1rem;">
-                        <div class="analytics-chart-header">
-                            <div>
-                                <div class="analytics-chart-title">
-                                    <i class="fas fa-sliders-h" style="color: #F57F17;"></i> Municipal Efficiency Gains by Sector
+                            <div class="live-events-list" id="liveEventsList">
+                                <div class="live-event-item">
+                                    <div class="live-event-icon waste"><i class="fas fa-trash"></i></div>
+                                    <div class="live-event-content">
+                                        <div class="live-event-headline">High Street Plaza Bin B003 ultrasonic fill at 97%</div>
+                                        <div class="live-event-time">Truck #04 en route via TomTom optimized path • Just now</div>
+                                    </div>
                                 </div>
-                                <div style="font-size: 0.78rem; color: var(--text-light); margin-top: 2px;">
-                                    Realized optimization percentage across municipal departments
+                                <div class="live-event-item">
+                                    <div class="live-event-icon traffic"><i class="fas fa-car-side"></i></div>
+                                    <div class="live-event-content">
+                                        <div class="live-event-headline">Downtown Expressway corridor congestion shifted to 68%</div>
+                                        <div class="live-event-time">Signal preemption buffers updated • 12 seconds ago</div>
+                                    </div>
+                                </div>
+                                <div class="live-event-item">
+                                    <div class="live-event-icon logistics"><i class="fas fa-boxes-packing"></i></div>
+                                    <div class="live-event-content">
+                                        <div class="live-event-headline">Delivery Van DEL-V18 docked at Commercial Row Bay A</div>
+                                        <div class="live-event-time">Trip clustering efficiency saved 28 trips today • 25 seconds ago</div>
+                                    </div>
                                 </div>
                             </div>
-                            <span class="analytics-chart-badge" style="background: rgba(245, 127, 23, 0.1); color: #F57F17;">Multi-Agency Validated</span>
                         </div>
-                        <div id="sectorGainsChartContainer"></div>
                     </div>
                 </div>
             </section>
@@ -840,27 +833,23 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- D3.js for Data Visualizations -->
-    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-
     <!-- Application Scripts -->
     <script src="/maps.js"></script>
-    <script src="/analytics.js"></script>
     <script src="/app.js"></script>
     <script src="/realtime.js"></script>
 
-    <!-- Real-time Telemetry, TomTom & Analytics Integration Scripts -->
+    <!-- Real-time Clock, Telemetry & TomTom Integration Scripts -->
     <script>
+        let lastUpdatedTimestamp = Date.now();
+
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize CityFlow Leaflet Map
             if (window.CityFlowMap && document.getElementById('cityflowMap')) {
                 window.cityFlowMap = new CityFlowMap('cityflowMap');
             }
 
-            // Initialize D3.js Analytics Dashboard
-            if (window.CityFlowAnalytics && document.getElementById('analyticsDashboardContainer')) {
-                window.cityFlowAnalytics = new CityFlowAnalytics('analyticsDashboardContainer');
-            }
+            // Start Live Clock (ticks every 1 second)
+            initLiveClock();
 
             // Fetch Live Weather & Road Impact
             fetchLiveWeather();
@@ -871,6 +860,51 @@
             // Connect Live Stream (SSE & WebSocket)
             initLiveTelemetryStream();
         });
+
+        function initLiveClock() {
+            function updateClock() {
+                const now = new Date();
+                
+                // Format Time: HH:MM:SS AM/PM
+                const hours = String(now.getHours() % 12 || 12).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+                const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+                // Format Date: Weekday, Month Day, Year
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const dateString = now.toLocaleDateString(undefined, options);
+
+                // Update Header Clock
+                const headerTime = document.getElementById('headerLiveTime');
+                const headerDate = document.getElementById('headerLiveDate');
+                if (headerTime) headerTime.textContent = timeString;
+                if (headerDate) headerDate.textContent = now.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+
+                // Update Live Session Section Clock
+                const sessionTime = document.getElementById('sessionCurrentTime');
+                const sessionDate = document.getElementById('sessionCurrentDate');
+                if (sessionTime) sessionTime.textContent = timeString;
+                if (sessionDate) sessionDate.textContent = dateString;
+
+                // Update Relative Last-Updated Label
+                const sessionUpdated = document.getElementById('sessionLastUpdated');
+                if (sessionUpdated) {
+                    const diffSec = Math.floor((Date.now() - lastUpdatedTimestamp) / 1000);
+                    if (diffSec <= 1) {
+                        sessionUpdated.textContent = 'Just now';
+                    } else if (diffSec < 60) {
+                        sessionUpdated.textContent = `${diffSec}s ago`;
+                    } else {
+                        sessionUpdated.textContent = `${Math.floor(diffSec / 60)}m ago`;
+                    }
+                }
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
 
         async function fetchTomTomStatus() {
             try {
@@ -931,6 +965,8 @@
         }
 
         function handleTelemetryPayload(state) {
+            lastUpdatedTimestamp = Date.now();
+
             // Update Traffic KPIs
             const trafficCard = document.getElementById('kpiCardTraffic');
             if (trafficCard && state.traffic) {
@@ -943,6 +979,31 @@
                 if (badgeEl) {
                     badgeEl.textContent = `${state.traffic.congestionIndex}% Congestion`;
                     badgeEl.style.color = state.traffic.congestionIndex > 70 ? '#DC3545' : '#F57F17';
+                }
+            }
+
+            // Update Live Events List
+            if (state.liveFeed && state.liveFeed.length > 0) {
+                const feedContainer = document.getElementById('liveEventsList');
+                if (feedContainer) {
+                    feedContainer.innerHTML = state.liveFeed.slice(0, 5).map(evt => {
+                        const iconClass = evt.category === 'waste' ? 'fas fa-trash' :
+                                         (evt.category === 'traffic' ? 'fas fa-car-side' :
+                                         (evt.category === 'logistics' ? 'fas fa-boxes-packing' : 'fas fa-shield-halved'));
+                        const catClass = evt.category || 'waste';
+                        const timeAgo = Math.floor((Date.now() - evt.timestamp) / 1000);
+                        const timeText = timeAgo < 5 ? 'Just now' : `${timeAgo}s ago`;
+
+                        return `
+                            <div class="live-event-item">
+                                <div class="live-event-icon ${catClass}"><i class="${iconClass}"></i></div>
+                                <div class="live-event-content">
+                                    <div class="live-event-headline">${evt.title}: ${evt.text}</div>
+                                    <div class="live-event-time">${timeText}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
                 }
             }
 

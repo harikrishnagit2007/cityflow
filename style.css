@@ -44,14 +44,12 @@ body {
 
 /* App Container */
 .app-container {
-    width: 100%;
-    max-width: 1440px;
+    max-width: 480px;
     margin: 0 auto;
     min-height: 100vh;
-    padding: 0 1.5rem;
     background: var(--background);
     position: relative;
-    box-shadow: none;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
 }
 
 /* App Header */
@@ -61,8 +59,8 @@ body {
     z-index: 100;
     background: var(--background);
     border-bottom: 1px solid var(--border);
-    padding: 0.75rem 0;
-    min-height: 70px;
+    padding: 0 1rem;
+    height: 60px;
     display: flex;
     align-items: center;
 }
@@ -72,35 +70,6 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    gap: 1.5rem;
-}
-
-.desktop-nav-links {
-    display: none;
-    align-items: center;
-    gap: 1.25rem;
-    list-style: none;
-}
-
-@media (min-width: 900px) {
-    .desktop-nav-links {
-        display: flex;
-    }
-}
-
-.desktop-nav-link {
-    color: var(--text-light);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: var(--transition);
-    padding: 0.4rem 0.6rem;
-    border-radius: 6px;
-}
-
-.desktop-nav-link:hover, .desktop-nav-link.active {
-    color: var(--primary-blue);
-    background: rgba(0, 119, 252, 0.08);
 }
 
 .logo {
@@ -165,15 +134,8 @@ body {
 
 /* Main Content */
 .main-content {
-    padding: 2rem 0;
-    padding-bottom: 2rem;
-    width: 100%;
-}
-
-@media (max-width: 768px) {
-    .main-content {
-        padding-bottom: 80px;
-    }
+    padding: 1rem;
+    padding-bottom: 80px;
 }
 
 /* Hero Section */
@@ -424,7 +386,7 @@ body {
     color: var(--text-lighter);
 }
 
-/* App Navigation (Mobile Only) */
+/* App Navigation */
 .app-nav {
     position: fixed;
     bottom: 0;
@@ -436,14 +398,8 @@ body {
     justify-content: space-around;
     padding: 0.75rem 0;
     z-index: 100;
-    max-width: 600px;
+    max-width: 480px;
     margin: 0 auto;
-}
-
-@media (min-width: 769px) {
-    .app-nav {
-        display: none !important;
-    }
 }
 
 .nav-item {
@@ -627,17 +583,11 @@ body {
 /* Map Container */
 .map-container {
     width: 100%;
-    height: 520px;
+    height: 300px;
     border-radius: var(--radius-md);
     overflow: hidden;
     margin-bottom: 1.5rem;
     border: 1px solid var(--border);
-}
-
-@media (max-width: 768px) {
-    .map-container {
-        height: 380px;
-    }
 }
 
 /* Status Indicators */
@@ -1817,163 +1767,6 @@ body {
     font-size: 0.85rem;
     color: var(--text-light);
     max-width: 500px;
-}
-
-/* ==========================================================================
-   D3.js Analytics Dashboard Component
-   ========================================================================== */
-.analytics-dashboard-section {
-    margin-bottom: 2.5rem;
-}
-
-.analytics-dashboard-container {
-    background: var(--background);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    padding: 1.5rem;
-}
-
-.analytics-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border);
-}
-
-.analytics-timeframe-toggles {
-    display: flex;
-    gap: 0.35rem;
-    background: var(--background-alt);
-    padding: 4px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-}
-
-.analytics-time-btn {
-    border: none;
-    background: transparent;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--text-light);
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.analytics-time-btn:hover {
-    color: var(--text-dark);
-}
-
-.analytics-time-btn.active {
-    background: #FFFFFF;
-    color: var(--primary-blue);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-.analytics-charts-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-@media (min-width: 900px) {
-    .analytics-charts-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-.analytics-chart-card {
-    background: var(--background-alt);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.analytics-chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.analytics-chart-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-dark);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.analytics-chart-badge {
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 12px;
-}
-
-.analytics-chart-body {
-    width: 100%;
-    min-height: 280px;
-    position: relative;
-}
-
-/* D3 Tooltip */
-.d3-analytics-tooltip {
-    background: #FFFFFF;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-    padding: 10px 12px;
-    font-family: inherit;
-    font-size: 12px;
-    line-height: 1.4;
-    color: var(--text-dark);
-}
-
-/* Sector Gains Rows */
-.sector-gains-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.15rem;
-    padding: 0.5rem 0;
-}
-
-.sector-gain-row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-}
-
-.sector-gain-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.sector-progress-track {
-    width: 100%;
-    height: 10px;
-    background: #E2E8F0;
-    border-radius: 5px;
-    overflow: hidden;
-}
-
-.sector-progress-fill {
-    height: 100%;
-    border-radius: 5px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Print Styles */

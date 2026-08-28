@@ -38,7 +38,6 @@ class CityFlowMap {
         await this.loadData();
         this.renderAllLayers();
         this.setupFilterEvents();
-        this.setupMapInteractionEvents();
         this.startRealtimeTicker();
     }
 
@@ -517,92 +516,6 @@ class CityFlowMap {
         if (optimizeBtn) {
             optimizeBtn.addEventListener('click', () => this.triggerGlobalOptimization());
         }
-    }
-
-    setupMapInteractionEvents() {
-        if (!this.map) return;
-
-        // Dynamic Click Traffic Inspector
-        this.map.on('click', async (e) => {
-            const { lat, lng } = e.latlng;
-            
-            // Show temporary loading indicator popup
-            const popup = L.popup()
-                .setLatLng([lat, lng])
-                .setContent(`
-                    <div style="font-family: inherit; font-size: 13px; padding: 6px; text-align: center;">
-                        <i class="fas fa-spinner fa-spin" style="color: #0077FC; font-size: 16px;"></i>
-                        <div style="margin-top: 4px; font-weight: 600;">Probing Live Traffic Telemetry...</div>
-                        <small style="color: #666;">Querying TomTom Traffic Flow</small>
-                    </div>
-                `)
-                .openOn(this.map);
-
-            try {
-                const res = await fetch(`/api/tomtom/traffic-flow?lat=${lat}&lng=${lng}`);
-                const data = await res.json();
-                
-                const speed = data.currentSpeed || 24;
-                const freeSpeed = data.freeFlowSpeed || 50;
-                const congestion = data.congestionIndex || Math.min(100, Math.round((1 - speed / freeSpeed) * 100));
-                const delaySec = data.flowData?.currentTravelTime ? (data.flowData.currentTravelTime - data.flowData.freeFlowTravelTime) : Math.round(congestion * 1.5);
-                const delayMin = Math.max(0, Math.round(delaySec / 60));
-                
-                const statusColor = congestion > 70 ? '#DC3545' : (congestion > 40 ? '#FFC107' : '#28A745');
-                const statusLabel = congestion > 70 ? 'Heavy Congestion' : (congestion > 40 ? 'Moderate Transit Flow' : 'Free Flowing');
-
-                popup.setContent(`
-                    <div style="font-family: inherit; font-size: 13px; min-width: 220px; padding: 4px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid #E0E0E0; padding-bottom: 6px;">
-                            <strong style="color: #231F20;"><i class="fas fa-traffic-light" style="color: ${statusColor};"></i> Traffic Telemetry</strong>
-                            <span style="background: ${statusColor}; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: 700;">
-                                ${statusLabel}
-                            </span>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #F8F9FA; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
-                            <div>
-                                <small style="color: #666;">Current Speed:</small><br>
-                                <strong style="font-size: 14px; color: ${statusColor};">${speed} km/h</strong>
-                            </div>
-                            <div>
-                                <small style="color: #666;">Free-Flow Speed:</small><br>
-                                <strong style="font-size: 14px; color: #231F20;">${freeSpeed} km/h</strong>
-                            </div>
-                        </div>
-                        <div style="font-size: 12px; margin-bottom: 6px;">
-                            <span>Congestion Index: <strong>${congestion}%</strong></span><br>
-                            <span>Travel Delay: <strong>${delayMin > 0 ? `+${delayMin} min` : 'Normal (0 min)'}</strong></span>
-                        </div>
-                        <div style="background: rgba(0, 119, 252, 0.08); border-left: 3px solid #0077FC; padding: 6px; border-radius: 4px; font-size: 11px; color: #0056CC;">
-                            <i class="fas fa-robot"></i> <strong>AI Action:</strong> ${congestion > 60 ? 'Extended green phase active. Rerouting delivery cluster.' : 'Corridor in optimal transit window.'}
-                        </div>
-                    </div>
-                `);
-            } catch (err) {
-                popup.setContent(`
-                    <div style="font-family: inherit; font-size: 12px; padding: 4px;">
-                        <strong style="color: #28A745;"><i class="fas fa-check-circle"></i> Road Corridor Active</strong><br>
-                        <span>Coordinates: ${lat.toFixed(4)}, ${lng.toFixed(4)}</span><br>
-                        <small style="color: #666;">Traffic flow normal across this segment.</small>
-                    </div>
-                `);
-            }
-        });
-
-        // Dynamic Zoom Event Listener - Adapt traffic visibility & weight
-        this.map.on('zoomend', () => {
-            const currentZoom = this.map.getZoom();
-            const trafficLayer = this.layers.traffic;
-            if (trafficLayer) {
-                // Adjust traffic polyline weight based on zoom level
-                const newWeight = currentZoom >= 15 ? 8 : (currentZoom >= 13 ? 6 : 4);
-                trafficLayer.eachLayer(layer => {
-                    if (layer instanceof L.Polyline) {
-                        layer.setStyle({ weight: newWeight });
-                    }
-                });
-            }
-        });
     }
 
     async triggerGlobalOptimization() {
